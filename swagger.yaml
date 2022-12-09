@@ -82,7 +82,10 @@ paths:
       description: Create a new endpoint which can then register itself with the server
       operationId: CreateEndpoint
       requestBody:
-        $ref: '#/components/requestBodies/EndpointJSON'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewEndpoint'
       responses:
         '201':
           description: Endpoint created
@@ -163,7 +166,10 @@ paths:
       parameters:
         - $ref: '#/components/parameters/EndpointIDParam'
       requestBody:
-        $ref: '#/components/requestBodies/EndpointJSON'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditEndpoint'
       responses:
         '200':
           description: Update successfully
@@ -858,18 +864,6 @@ components:
       schema:
         $ref: '#/components/schemas/EndpointConfigurationID'
   requestBodies:
-    EndpointJSON:
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              name:
-                type: string
-              description:
-                type: string
-      description: Endpoint to be created
-      required: true
     RouterJSON:
       content:
         application/json:
@@ -897,27 +891,57 @@ components:
   schemas:
     EndpointID:
       type: string
-      format: UUID
+      format: uuid
       description: The unique identifier of an endpoint
     EndpointConfigurationID:
       type: string
-      format: UUID
+      format: uuid
       description: The unique identifier of an endpoint configuration
+    BasicEndpoint:
+      type: object
+      description: An object describing the basic properties of an endpoint
+      properties:
+        name:
+          type: string
+          example: AWS Endpoint
+        description:
+          type: string
+          example: Endpoint hosted on AWS
+    EditEndpoint:
+      type: object
+      description: The object to use when modifying an Endpoint object
+      allOf:
+        - $ref: '#/components/schemas/BasicEndpoint'
+        - type: object
+          properties:
+            configurationId:
+              $ref: '#/components/schemas/EndpointConfigurationID'
+    NewEndpoint:
+      type: object
+      description: The object to use when creating a new Endpoint object
+      required:
+        - name
+        - configurationId
+      allOf:
+        - $ref: '#/components/schemas/EditEndpoint'
     Endpoint:
       type: object
       required:
         - id
         - name
-      properties:
-        id:
-          $ref: '#/components/schemas/EndpointID'
-        name:
-          type: string
-        description:
-          type: string
-        isRegistered:
-          type: boolean
-          description: Shows whether the endpoint has been registered already.
+        - isRegistered
+        - configuration
+      allOf:
+        - $ref: '#/components/schemas/BasicEndpoint'
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/EndpointID'
+            isRegistered:
+              type: boolean
+              description: Shows whether the endpoint has been registered already.
+            configuration:
+              $ref: '#/components/schemas/EndpointConfiguration'
     EndpointRegistrationToken:
       type: string
       description: A single-use token that is handed to the endpoint for registration.
@@ -949,8 +973,7 @@ components:
         - type: object
           properties:
             id:
-              type: string
-              format: UUID
+              $ref: '#/components/schemas/EndpointConfigurationID'
         - $ref: '#/components/schemas/NewEndpointConfiguration'
     EndpointIngressDenyRule:
       type: object
@@ -991,7 +1014,7 @@ components:
           type: string
     RouterID:
       type: string
-      format: UUID
+      format: uuid
       description: The unique identifier of a router
     RouterRegistrationToken:
       type: object
@@ -1028,7 +1051,7 @@ components:
           example: Received new connection from Endpoint X.X.X.X
     UserID:
       type: string
-      format: UUID
+      format: uuid
       description: The unique identifier of a user
     UserGroup:
       type: string

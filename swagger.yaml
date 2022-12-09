@@ -682,7 +682,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  user:
+                  users:
                     type: array
                     items:
                       $ref: '#/components/schemas/User'
@@ -1059,16 +1059,23 @@ components:
       type: string
       description: the usergroup a given user is a member of
       example: 'admin, researcher'
+    UserName:
+      type: string
+      description: The name of a user
+      example: 'Jane Doe'
     User:
       type: object
       required:
         - id
         - group
+        - name
       properties:
         id:
           $ref: '#/components/schemas/UserID'
         group:
           $ref: '#/components/schemas/UserGroup'
+        name:
+          $ref: '#/components/schemas/UserName'
     Error:
       type: object
       properties:

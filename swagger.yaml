@@ -699,10 +699,7 @@ paths:
       security:
         - EndpointAuthentication: []
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
+         $ref: '#/components/requestBodies/UserJSON'
       responses:
         '204':
           description: User created successfully
@@ -759,11 +756,10 @@ paths:
       parameters:
         - name: userId
           in: path
-          description: endpoint id to delete
+          description: user id to delete
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
       responses:
         '204':
           description: Successful

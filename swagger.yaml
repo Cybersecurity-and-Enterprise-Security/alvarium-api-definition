@@ -421,7 +421,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RouterRegistrationToken'
+                type: object
+                properties:
+                  router:
+                    $ref: '#/components/schemas/Router'
+                  registrationToken:
+                    $ref: '#/components/schemas/RouterRegistrationToken'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '405':
@@ -1012,19 +1017,16 @@ components:
           type: string
         description:
           type: string
+        isRegistered:
+          type: boolean
+          description: Shows whether the endpoint has been registered already.
     RouterID:
       type: string
       format: uuid
       description: The unique identifier of a router
     RouterRegistrationToken:
-      type: object
+      type: string
       description: A single-use token that is handed to the router for registration.
-      required:
-        - registrationToken
-      properties:
-        registrationToken:
-          type: string
-          description: The registration token endpoint for registration.
     RouterConfiguration:
       type: object
       description: The configuration of an endpoint.

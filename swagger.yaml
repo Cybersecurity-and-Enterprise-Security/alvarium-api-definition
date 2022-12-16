@@ -34,6 +34,8 @@ tags:
     description: Endpoint configurations holds a configuration that can be assigned to multiple endpoints
   - name: router
     description: Routers that create honeypots and forward the traffic from the endpoints to the honeypots
+  - name: honeypot
+    description: Instances (e.g. container or physical hardware) that attackers interact with
   - name: user
     description: Users which can use the honeynet via the GUI
 paths:
@@ -667,6 +669,147 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RouterMetrics'
+  /routers/{routerId}/honeypots:
+    get:
+      tags:
+        - honeypot
+      parameters:
+        - $ref: '#/components/parameters/RouterIDParam'
+      summary: Get all honeypots of a specific router
+      description: Get all honeypots attached to the router. These are honeypots that the router can talk to and possibly also manages (e.g. containers).
+      operationId: FindAllHoneypotsByRouter
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  honeypots:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Honeypot'
+                  count:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    post:
+      tags:
+        - honeypot
+      parameters:
+        - $ref: '#/components/parameters/RouterIDParam'
+      summary: Add a new honeypot
+      description: Adds a new honeypot to the specified router
+      operationId: CreateHoneypot
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewHoneypot'
+      responses:
+        '201':
+          description: Honeypot created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Honeypot'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /honeypots:
+    get:
+      tags:
+        - honeypot
+      summary: Get all honeypots
+      description: Get all registered honeypots. This might be interesting for administrators to monitor all available honeypots.
+      operationId: FindAllHoneypots
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  honeypots:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Honeypot'
+                  count:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /honeypots/{honeypotId}:
+    get:
+      tags:
+        - honeypot
+      summary: Get a specific honeypot
+      description: Get a specific honeypot of a router as identified by its id.
+      operationId: FindHoneypotById
+      parameters:
+        - $ref: '#/components/parameters/HoneypotIDParam'
+      responses:
+        '200':
+          description: Honeypot found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Honeypot'
+        '400':
+          description: Invalid ID supplied
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '405':
+          $ref: '#/components/responses/InvalidInputError'
+    patch:
+      tags:
+        - honeypot
+      summary: Edit honeypot by ID
+      description: Edits the honeypot with the given ID and the provided information.
+      operationId: EditHoneypot
+      parameters:
+        - $ref: '#/components/parameters/HoneypotIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditHoneypot'
+      responses:
+        '200':
+          description: Update successfully
+        '400':
+          description: Invalid ID supplied
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '405':
+          description: Invalid input
+    delete:
+      tags:
+        - honeypot
+      summary: Deletes a honeypot by ID
+      description: Delete the honeypot with the specified ID
+      operationId: DeleteHoneypot
+      parameters:
+        - $ref: '#/components/parameters/HoneypotIDParam'
+      responses:
+        '204':
+          description: Honeypot deleted successfully
+        '400':
+          description: Invalid ID supplied
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '405':
+          $ref: '#/components/responses/InvalidInputError'
   /users:
     get:
       tags:
@@ -864,6 +1007,13 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/EndpointConfigurationID'
+    HoneypotIDParam:
+      name: honeypotId
+      in: path
+      description: ID of the honeypot to operate on
+      required: true
+      schema:
+        $ref: '#/components/schemas/HoneypotID'
   requestBodies:
     RouterJSON:
       content:
@@ -1047,6 +1197,63 @@ components:
           type: string
           description: The metrics entry
           example: Received new connection from Endpoint X.X.X.X
+    HoneypotID:
+      type: string
+      format: uuid
+      description: The unique identifier of a honeypot.
+    EditHoneypot:
+      type: object
+      description: The object to use when modifying a honeypot.
+      properties:
+        name:
+          type: string
+          description: |
+            A name that describes the honeypot.
+            This is useful for static honeypots to include some identifier like the specific model number.
+            When a hardware honeypot is removed, e.g. because it broke, this can then be used to identify the honeypot in the system and delete it properly.
+            This is optional. If it isn't set on creation, a proper default value will be set (e.g. type/id)
+          example: Samsung Smart TV No. 1
+        ip:
+          type: string
+          format: ip
+          description: The ip under which the beehive can reach the honeypot.
+          example: 10.11.12.13
+        type:
+          type: string
+          description: The type identifying the honeypot. Could be a Docker image (e.g. `nginx:latest`) or something describing a hardware appliance (e.g. `Samsung Smart TV`).
+          example: nginx:latest
+    NewHoneypot:
+      type: object
+      description: The object to use when creating a new honeypot.
+      required:
+        - ip
+        - type
+        - dynamic
+      allOf:
+        - $ref: '#/components/schemas/EditHoneypot'
+        - type: object
+          properties:
+            dynamic:
+              type: boolean
+              description: Specifies whether this honeypot was created dynamically (e.g. a container created by the router) or statically (e.g. a Smart TV via the frontend)
+    Honeypot:
+      type: object
+      description: A honeypot (e.g. a single running Docker container).
+      required:
+        - id
+        - ip
+        - type
+        - router
+        - dynamic
+        - name
+      allOf:
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/HoneypotID'
+            router:
+              $ref: '#/components/schemas/Router'
+        - $ref: '#/components/schemas/NewHoneypot'
     UserID:
       type: string
       format: uuid

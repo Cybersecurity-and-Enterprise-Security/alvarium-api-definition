@@ -773,7 +773,7 @@ paths:
       description: Returns all endpoints the requested user has created and registered
       operationId: ShowUserEndpoints
       tags:
-        - router
+        - user
       parameters:
         - $ref: '#/components/parameters/UserIDParam'
       responses:
@@ -800,7 +800,7 @@ paths:
       description: TODO
       operationId: ShowUserRouters
       tags:
-        - router
+        - user
       parameters:
         - $ref: '#/components/parameters/UserIDParam'
       responses:

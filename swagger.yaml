@@ -711,7 +711,7 @@ paths:
       security:
         - RouterAuthentication: []
   '/routers/{routerId}/config':
-    get:
+    post:
       summary: Get router config
       description: Returns the configuartion of the router with the specified ID.
       tags:
@@ -1344,7 +1344,9 @@ components:
         - $ref: '#/components/schemas/EditEndpointForwardingRule'
     EndpointForwardingRule:
       type: object
-      description: An endpoint forwarding rule.
+      description: |
+        An endpoint forwarding rule.
+        When the `honeypot` property is set, a decision has been made to route traffic to a specific honeypot on a specific router.
       required:
         - id
         - endpoint
@@ -1357,6 +1359,8 @@ components:
               $ref: '#/components/schemas/EndpointForwardingRuleID'
             endpoint:
               $ref: '#/components/schemas/Endpoint'
+            honeypot:
+              $ref: '#/components/schemas/Honeypot'
         - $ref: '#/components/schemas/NewEndpointForwardingRule'
     EndpointLog:
       type: object
@@ -1371,13 +1375,16 @@ components:
       required:
         - id
         - name
+        - isRegistered
       properties:
         id:
           $ref: '#/components/schemas/RouterID'
         name:
           type: string
+          example: Router H-1
         description:
           type: string
+          example: The router hosted on the server in H-1.
         isRegistered:
           type: boolean
           description: Shows whether the endpoint has been registered already.
@@ -1390,12 +1397,23 @@ components:
       description: A single-use token that is handed to the router for registration.
     RouterConfiguration:
       type: object
-      description: The configuration of an endpoint.
+      description: The configuration of a router.
+      required:
+        - router
+        - forwardings
       properties:
         router:
-          type: string
-          format: 'host:port'
-          description: The router that the endpoint should forward its traffic to.
+          $ref: '#/components/schemas/Router'
+        forwardings:
+          type: array
+          items:
+            description: A forwarding rule that dictates to which honeypot the traffic received from an endpoint should be routed to.
+            required:
+              - endpoint
+              - honeypot
+              - matcher
+            allOf:
+              - $ref: '#/components/schemas/EndpointForwardingRule'
     RouterLog:
       type: object
       description: A log entry of a router.
@@ -1453,7 +1471,9 @@ components:
               description: Specifies whether this honeypot was created dynamically (e.g. a container created by the router) or statically (e.g. a Smart TV via the frontend)
     Honeypot:
       type: object
-      description: A honeypot (e.g. a single running Docker container).
+      description: |
+        A honeypot (e.g. a single running Docker container).
+        When `endpointForwardingRule` is set, the honeypot is assigned to the corresponding endpoint.
       required:
         - id
         - ip
@@ -1468,6 +1488,8 @@ components:
               $ref: '#/components/schemas/HoneypotID'
             router:
               $ref: '#/components/schemas/Router'
+            endpointForwardingRule:
+              $ref: '#/components/schemas/EndpointForwardingRule'
         - $ref: '#/components/schemas/NewHoneypot'
     UserID:
       type: string

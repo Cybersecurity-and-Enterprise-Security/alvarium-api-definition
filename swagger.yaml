@@ -444,10 +444,16 @@ paths:
         to the API and e.g. receive its configuration.
       operationId: RegisterRouter
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RouterRegistrationToken'
+              type: object
+              properties:
+                registrationToken:
+                  $ref: '#/components/schemas/RouterRegistrationToken'
+              required:
+                - registrationToken
       responses:
         '201':
           description: Router registered successfully

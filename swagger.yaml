@@ -77,6 +77,9 @@ paths:
                       $ref: '#/components/schemas/Endpoint'
                   count:
                     type: integer
+                required:
+                  - endpoints
+                  - count
     post:
       tags:
         - endpoint
@@ -100,6 +103,9 @@ paths:
                     $ref: '#/components/schemas/Endpoint'
                   registrationToken:
                     $ref: '#/components/schemas/EndpointRegistrationToken'
+                required:
+                  - endpoint
+                  - registrationToken
   /endpoints/register:
     post:
       tags:
@@ -407,6 +413,9 @@ paths:
                       $ref: '#/components/schemas/Router'
                   count:
                     type: integer
+                required:
+                  - routers
+                  - count
         '401':
           $ref: '#/components/responses/UnauthorizedError'
     post:
@@ -429,6 +438,9 @@ paths:
                     $ref: '#/components/schemas/Router'
                   registrationToken:
                     $ref: '#/components/schemas/RouterRegistrationToken'
+                required:
+                  - router
+                  - registrationToken
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '405':
@@ -467,6 +479,9 @@ paths:
                   authenticationToken:
                     type: string
                     description: A permanent authentication token that the router uses to authenticate against the API.
+                required:
+                  - id
+                  - authenticationToken
         '401':
           $ref: '#/components/responses/UnauthorizedError'
   '/routers/{routerId}':
@@ -595,6 +610,11 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/RouterLog'
+                  count:
+                    type: integer
+                required:
+                  - endpoints
+                  - count
         '400':
           description: invalid ID supplied
         '401':
@@ -646,6 +666,11 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/RouterMetrics'
+                  count:
+                    type: integer
+                required:
+                  - endpoints
+                  - count
         '400':
           description: invalid ID supplied
         '401':
@@ -698,6 +723,9 @@ paths:
                       $ref: '#/components/schemas/Honeypot'
                   count:
                     type: integer
+                required:
+                  - honeypots
+                  - count
         '401':
           $ref: '#/components/responses/UnauthorizedError'
     post:
@@ -747,6 +775,9 @@ paths:
                       $ref: '#/components/schemas/Honeypot'
                   count:
                     type: integer
+                required:
+                  - honeypots
+                  - count
         '401':
           $ref: '#/components/responses/UnauthorizedError'
   /honeypots/{honeypotId}:
@@ -837,6 +868,9 @@ paths:
                       $ref: '#/components/schemas/User'
                   count:
                     type: integer
+                required:
+                  - users
+                  - count
         '401':
           $ref: '#/components/responses/UnauthorizedError'
     post:
@@ -937,6 +971,11 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Endpoint'
+                  count:
+                    type: integer
+                required:
+                  - endpoints
+                  - count
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -964,6 +1003,11 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Router'
+                  count:
+                    type: integer
+                required:
+                  - endpoints
+                  - count
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':

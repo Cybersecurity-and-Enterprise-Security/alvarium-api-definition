@@ -1329,8 +1329,17 @@ components:
       type: object
       description: The object to use when editing a new endpoint forwarding rule.
       properties:
-        matcher:
-          $ref: '#/components/schemas/PacketMatcher'
+        endpointMatcher:
+          description: Packet matcher that the endpoint uses to filter the packets that apply to this forwarding rule.
+          allOf:
+            - $ref: '#/components/schemas/PacketMatcher'
+        routerMatcher:
+          description: |
+            Packet matcher that the router uses to filter the packets that apply to this forwarding rule.
+            For now, the protocol here must match the protocol in the endpointMatcher, as we aren't able to switch protocols in between.
+            If they do not match, the behavior is undefined.
+          allOf:
+            - $ref: '#/components/schemas/PacketMatcher'
         honeypotType:
           type: string
           description: Type of the honeypot the traffic should be routed to
@@ -1338,7 +1347,8 @@ components:
       type: object
       description: The object to use when creating a new endpoint forwarding rule.
       required:
-        - matcher
+        - endpointMatcher
+        - routerMatcher
         - honeypotType
       allOf:
         - $ref: '#/components/schemas/EditEndpointForwardingRule'
@@ -1350,7 +1360,8 @@ components:
       required:
         - id
         - endpoint
-        - matcher
+        - endpointMatcher
+        - routerMatcher
         - honeypotType
       allOf:
         - type: object

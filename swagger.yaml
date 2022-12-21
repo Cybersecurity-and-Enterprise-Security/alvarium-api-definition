@@ -1276,6 +1276,11 @@ components:
         description:
           type: string
           example: Endpoint hosted on AWS
+        publicIP:
+          description: The public IP of the endpoint, using which it receives traffic from attackers.
+          type: string
+          format: ip
+          example: 133.7.42.42
     EditEndpoint:
       type: object
       description: The object to use when modifying an Endpoint object
@@ -1290,6 +1295,7 @@ components:
       description: The object to use when creating a new Endpoint object
       required:
         - name
+        - publicIP
         - configurationId
       allOf:
         - $ref: '#/components/schemas/EditEndpoint'
@@ -1299,6 +1305,7 @@ components:
         - id
         - name
         - isRegistered
+        - publicIP
         - configuration
       allOf:
         - $ref: '#/components/schemas/BasicEndpoint'

@@ -32,6 +32,8 @@ tags:
     description: Endpoints that receive connections and forward the traffic to the routers
   - name: endpointConfiguration
     description: Endpoint configurations holds a configuration that can be assigned to multiple endpoints
+  - name: endpointForwardingRule
+    description: Endpoint forwarding rules define which port of an endpoint should be forwarded to which router
   - name: router
     description: Routers that create honeypots and forward the traffic from the endpoints to the honeypots
   - name: honeypot
@@ -392,6 +394,161 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+  /endpoints/{endpointId}/forwardingRules:
+    get:
+      tags:
+        - endpointForwardingRule
+      parameters:
+        - $ref: '#/components/parameters/EndpointIDParam'
+      summary: Get forwarding rules for a specific endpoint
+      description: Get forwarding rules for the specified endpoint. These are informations for the endpoint regarding which incoming packets at a given port should be forwarded to which router.
+      operationId: FindAllForwardingRulesByEndpoint
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - forwardingRules
+                  - count
+                properties:
+                  forwardingRules:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EndpointForwardingRule'
+                  count:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      tags:
+        - endpointForwardingRule
+      parameters:
+        - $ref: '#/components/parameters/EndpointIDParam'
+      summary: Add a new endpoint forwarding rule
+      description: Adds a new forwarding rule to the specified endpoint
+      operationId: CreateEndpointForwardingRule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewEndpointForwardingRule'
+      responses:
+        '201':
+          description: Forwarding Rule created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointForwardingRule'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /endpointForwardingRules:
+    get:
+      tags:
+        - endpointForwardingRule
+      summary: Get all forwarding rules
+      description: Get all created forwarding rules.
+      operationId: FindAllEndpointForwardingRules
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - forwardingRules
+                  - count
+                properties:
+                  forwardingRules:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EndpointForwardingRule'
+                  count:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /endpointForwardingRules/{forwardingRuleId}:
+    get:
+      tags:
+        - endpointForwardingRule
+      summary: Get a specific forwarding rule.
+      description: Get a specific forwarding rule of an endpoint as identified by its id.
+      operationId: FindEndpointForwardingRuleByID
+      parameters:
+        - $ref: '#/components/parameters/EndpointForwardingRuleIDParam'
+      responses:
+        '200':
+          description: Forwarding Rule found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointForwardingRule'
+        '400':
+          description: Invalid ID supplied
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '405':
+          $ref: '#/components/responses/InvalidInputError'
+    patch:
+      tags:
+        - endpointForwardingRule
+      summary: Edit forwarding rule by ID
+      description: Edits the endpoint forwarding rule with the given ID and the provided information.
+      operationId: EditEndpointForwardingRule
+      parameters:
+        - $ref: '#/components/parameters/EndpointForwardingRuleIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditEndpointForwardingRule'
+      responses:
+        '200':
+          description: Update successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointForwardingRule'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '405':
+          $ref: '#/components/responses/InvalidInputError'
+    delete:
+      tags:
+        - endpointForwardingRule
+      summary: Deletes an endpoint forwarding rule by ID
+      description: Delete the endpoint forwarding rule with the specified ID
+      operationId: DeleteEndpointForwardingRule
+      parameters:
+        - $ref: '#/components/parameters/EndpointForwardingRuleIDParam'
+      responses:
+        '204':
+          description: Forwarding Rule deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '405':
+          $ref: '#/components/responses/InvalidInputError'
   /routers:
     get:
       tags:
@@ -1064,6 +1221,13 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/HoneypotID'
+    EndpointForwardingRuleIDParam:
+      name: forwardingRuleId
+      in: path
+      description: ID of the endpoint forwarding rule to operate on
+      required: true
+      schema:
+        $ref: '#/components/schemas/EndpointForwardingRuleID'
   requestBodies:
     RouterJSON:
       content:
@@ -1095,6 +1259,10 @@ components:
       format: uuid
       description: The unique identifier of an endpoint
     EndpointConfigurationID:
+      type: string
+      format: uuid
+      description: The unique identifier of an endpoint configuration
+    EndpointForwardingRuleID:
       type: string
       format: uuid
       description: The unique identifier of an endpoint configuration
@@ -1176,9 +1344,9 @@ components:
             id:
               $ref: '#/components/schemas/EndpointConfigurationID'
         - $ref: '#/components/schemas/NewEndpointConfiguration'
-    EndpointIngressDenyRule:
+    PacketMatcher:
       type: object
-      description: A rule that specifies what ingress traffic to **NOT** forward to the beehive.
+      description: A rule to match a packet and make processing decisions based on that.
       required:
         - protocol
         - port
@@ -1193,6 +1361,47 @@ components:
           type: number
           description: The port to deny traffic to.
           example: 80
+    EndpointIngressDenyRule:
+      type: object
+      description: A rule that specifies what ingress traffic to **NOT** forward to the beehive.
+      required:
+        - protocol
+        - port
+      allOf:
+        - $ref: '#/components/schemas/PacketMatcher'
+    EditEndpointForwardingRule:
+      type: object
+      description: The object to use when editing a new endpoint forwarding rule.
+      properties:
+        matcher:
+          $ref: '#/components/schemas/PacketMatcher'
+        honeypotType:
+          type: string
+          description: Type of the honeypot the traffic should be routed to
+    NewEndpointForwardingRule:
+      type: object
+      description: The object to use when creating a new endpoint forwarding rule.
+      required:
+        - matcher
+        - honeypotType
+      allOf:
+        - $ref: '#/components/schemas/EditEndpointForwardingRule'
+    EndpointForwardingRule:
+      type: object
+      description: An endpoint forwarding rule.
+      required:
+        - id
+        - endpoint
+        - matcher
+        - honeypotType
+      allOf:
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/EndpointForwardingRuleID'
+            endpoint:
+              $ref: '#/components/schemas/Endpoint'
+        - $ref: '#/components/schemas/NewEndpointForwardingRule'
     EndpointLog:
       type: object
       description: A log entry of an endpoint.

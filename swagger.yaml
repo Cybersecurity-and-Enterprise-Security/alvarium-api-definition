@@ -1299,14 +1299,14 @@ components:
         - configurationId
       allOf:
         - $ref: '#/components/schemas/EditEndpoint'
-    Endpoint:
+    SimpleEndpoint:
       type: object
+      description: Endpoint that does not contain any relations.
       required:
         - id
         - name
         - isRegistered
         - publicIP
-        - configuration
       allOf:
         - $ref: '#/components/schemas/BasicEndpoint'
         - type: object
@@ -1316,6 +1316,18 @@ components:
             isRegistered:
               type: boolean
               description: Shows whether the endpoint has been registered already.
+    Endpoint:
+      type: object
+      required:
+        - id
+        - name
+        - isRegistered
+        - publicIP
+        - configuration
+      allOf:
+        - $ref: '#/components/schemas/SimpleEndpoint'
+        - type: object
+          properties:
             configuration:
               $ref: '#/components/schemas/EndpointConfiguration'
     EndpointRegistrationToken:
@@ -1420,7 +1432,7 @@ components:
             id:
               $ref: '#/components/schemas/EndpointForwardingRuleID'
             endpoint:
-              $ref: '#/components/schemas/Endpoint'
+              $ref: '#/components/schemas/SimpleEndpoint'
             honeypot:
               $ref: '#/components/schemas/Honeypot'
         - $ref: '#/components/schemas/NewEndpointForwardingRule'

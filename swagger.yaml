@@ -45,6 +45,24 @@ tags:
 security:
   - UserAuthentication: []
 paths:
+  /health:
+    get:
+      summary: Check service health.
+      description: Checks whether all services are healthy.
+      security: []
+      responses:
+        '200':
+          description: Service healthy.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+        '500':
+          description: Service unhealthy.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
   /endpoints:
     get:
       tags:
@@ -1766,6 +1784,14 @@ components:
       properties:
         message:
           type: string
+      required:
+        - message
+    Health:
+      type: object
+      properties:
+        message:
+          description: The message of the API.
+          example: 🧑‍🌾 🐝 🐝 🐝
       required:
         - message
   responses:

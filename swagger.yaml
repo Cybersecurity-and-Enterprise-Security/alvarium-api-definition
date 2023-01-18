@@ -40,6 +40,8 @@ tags:
     description: Instances (e.g. container or physical hardware) that attackers interact with
   - name: user
     description: Users which can use the honeynet via the GUI
+  - name: team
+    description: Teams are a collection of users and group ressources in a hierarchy
 paths:
   /authenticate:
     post:
@@ -1171,6 +1173,129 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '405':
           $ref: '#/components/responses/InvalidInputError'
+  /teams:
+    get:
+      tags:
+        - team
+      summary: Get all teams
+      description: Gets all teams
+      operationId: FindAllTeams
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  teams:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Team'
+                  count:
+                    type: integer
+                required:
+                  - teams
+                  - count
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    post:
+      tags:
+        - team
+      summary: Create new root team
+      description: Creates a new team. The authenticated user will be the owner.
+      operationId: CreateTeam
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewTeam'
+      responses:
+        '204':
+          description: Team created successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  '/teams/{teamId}':
+    get:
+      summary: Get team information by ID
+      description: Returns information about a specific team
+      operationId: FindTeamById
+      tags:
+        - team
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    patch:
+      tags:
+        - team
+      summary: Update team information
+      description: Update information of a specific team
+      operationId: EditTeam
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditTeam'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      tags:
+        - team
+      summary: Deletes a team
+      description: Delete a team
+      operationId: DeleteTeam
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
+      responses:
+        '204':
+          description: Successful
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/teams/{teamId}/teams':
+    post:
+      tags:
+        - team
+      summary: Create new sub team
+      description: Creates a new sub-team. The authenticated user will be the owner.
+      operationId: CreateSubTeam
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewTeam'
+      responses:
+        '204':
+          description: Team created successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
 components:
   securitySchemes:
     EndpointAuthentication:
@@ -1228,6 +1353,13 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/EndpointForwardingRuleID'
+    TeamIDParam:
+      name: teamId
+      in: path
+      description: ID of the team to operate on
+      required: true
+      schema:
+        $ref: '#/components/schemas/TeamID'
   requestBodies:
     RouterJSON:
       content:
@@ -1590,6 +1722,52 @@ components:
           $ref: '#/components/schemas/UserGroup'
         name:
           $ref: '#/components/schemas/UserName'
+    TeamID:
+      type: string
+      format: uuid
+      description: The unique identifier of a team
+    EditTeam:
+      type: object
+      description: Object to use when editing a team
+      properties:
+        name:
+          type: string
+          description: The name of a team
+          example: 'Alvarium'
+    NewTeam:
+      type: object
+      description: Object to use when creating a team
+      required:
+        - name
+      allOf:
+        - $ref: '#/components/schemas/EditTeam'
+    SimpleTeam:
+      type: object
+      description: The basic properties of a team without relations
+      required:
+        - id
+        - name
+      allOf:
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/TeamID'
+        - $ref: '#/components/schemas/NewTeam'
+    Team:
+      type: object
+      required:
+        - id
+        - name
+        - subteams
+      allOf:
+        - $ref: '#/components/schemas/SimpleTeam'
+        - type: object
+          properties:
+            subteams:
+              type: array
+              description: Direct subteams of a team. Does not include subsubteams etc.
+              items:
+                $ref: '#/components/schemas/SimpleTeam'
     Error:
       type: object
       properties:

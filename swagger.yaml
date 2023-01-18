@@ -42,24 +42,9 @@ tags:
     description: Users which can use the honeynet via the GUI
   - name: team
     description: Teams are a collection of users and group ressources in a hierarchy
+security:
+  - UserAuthentication: []
 paths:
-  /authenticate:
-    post:
-      tags:
-        - user
-      summary: Authenticate User
-      description: Login at the beehive application. Returns the ID of a User and a JWT.
-      operationId: AuthenticateUser
-      responses:
-        '200':
-          description: successful operation
-          headers:
-            Set-Cookie:
-              schema:
-                type: string
-                example: JWT=abcde12345; Path=/; HttpOnly
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
   /endpoints:
     get:
       tags:
@@ -1309,7 +1294,7 @@ components:
     UserAuthentication:
       type: http
       scheme: bearer
-      description: The authentication by a user using the authentication token received on registration.
+      description: The authentication by a user using the `auth_token` received from a request to our OIDC provider.
   parameters:
     EndpointIDParam:
       name: endpointId

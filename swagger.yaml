@@ -87,32 +87,6 @@ paths:
                 required:
                   - endpoints
                   - count
-    post:
-      tags:
-        - endpoint
-      summary: Create a new endpoint
-      description: Create a new endpoint which can then register itself with the server
-      operationId: CreateEndpoint
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewEndpoint'
-      responses:
-        '201':
-          description: Endpoint created
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  endpoint:
-                    $ref: '#/components/schemas/Endpoint'
-                  registrationToken:
-                    $ref: '#/components/schemas/EndpointRegistrationToken'
-                required:
-                  - endpoint
-                  - registrationToken
   /endpoints/register:
     post:
       tags:
@@ -201,6 +175,30 @@ paths:
       responses:
         '204':
           description: Endpoint deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/endpoints/{endpointId}/transfer':
+    post:
+      tags:
+        - endpoint
+        - team
+      summary: Transfer endpoint to a new team
+      description: Transfers the ownership of the endpoint to a different team.
+      operationId: TransferEndpoint
+      parameters:
+        - $ref: '#/components/parameters/EndpointIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamTransfer'
+      responses:
+        '204':
+          description: Configuration transferred successfully
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
   '/endpoints/{endpointId}/config':
@@ -308,30 +306,6 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-    post:
-      tags:
-        - endpointConfiguration
-      summary: Create a new endpoint configuration
-      description: Create a new endpoint configuration which can then be used for multiple endpoints. An endpoint configuration must exist before creating an endpoint, as an endpoint will be assigned a configuration when it is created.
-      operationId: CreateEndpointConfiguration
-      requestBody:
-        description: Endpoint configuration to be created
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewEndpointConfiguration'
-      responses:
-        '201':
-          description: Endpoint configuration created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EndpointConfiguration'
-        '400':
-          $ref: '#/components/responses/UnauthorizedError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
   '/endpoints/configurations/{configurationId}':
     get:
       tags:
@@ -393,6 +367,30 @@ paths:
       responses:
         '204':
           description: Endpoint configuration deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/endpoints/configurations/{configurationId}/transfer':
+    post:
+      tags:
+        - endpointConfiguration
+        - team
+      summary: Transfer endpoint configuration to a new team
+      description: Transfers the ownership of the endpoint to a different team.
+      operationId: TransferEndpointConfiguration
+      parameters:
+        - $ref: '#/components/parameters/EndpointConfigurationID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamTransfer'
+      responses:
+        '204':
+          description: Configuration transferred successfully
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -580,33 +578,6 @@ paths:
                   - count
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-    post:
-      tags:
-        - router
-      summary: Create new router
-      description: Create a new router which can then register itself with the server
-      operationId: CreateRouter
-      requestBody:
-        $ref: '#/components/requestBodies/RouterJSON'
-      responses:
-        '201':
-          description: Router created
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  router:
-                    $ref: '#/components/schemas/Router'
-                  registrationToken:
-                    $ref: '#/components/schemas/RouterRegistrationToken'
-                required:
-                  - router
-                  - registrationToken
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '405':
-          $ref: '#/components/responses/InvalidInputError'
   /routers/register:
     post:
       tags:
@@ -710,6 +681,30 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '405':
           $ref: '#/components/responses/InvalidInputError'
+  '/routers/{routerId}/transfer':
+    post:
+      tags:
+        - router
+        - team
+      summary: Transfer router to a new team
+      description: Transfers the ownership of the router to a different team.
+      operationId: TransferRouter
+      parameters:
+        - $ref: '#/components/parameters/RouterIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamTransfer'
+      responses:
+        '204':
+          description: Configuration transferred successfully
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
   '/routers/{routerId}/startup':
     post:
       summary: Router startup API-Endpoint
@@ -1112,70 +1107,6 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-  '/users/{userId}/endpoints':
-    get:
-      summary: Get endpoints of user
-      description: Returns all endpoints the requested user has created and registered
-      operationId: ShowUserEndpoints
-      tags:
-        - user
-      parameters:
-        - $ref: '#/components/parameters/UserIDParam'
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  endpoints:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Endpoint'
-                  count:
-                    type: integer
-                required:
-                  - endpoints
-                  - count
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        '405':
-          $ref: '#/components/responses/InvalidInputError'
-  '/users/{userId}/routers':
-    get:
-      summary: Get routers of a user
-      description: TODO
-      operationId: ShowUserRouters
-      tags:
-        - user
-      parameters:
-        - $ref: '#/components/parameters/UserIDParam'
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  endpoints:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Router'
-                  count:
-                    type: integer
-                required:
-                  - endpoints
-                  - count
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        '405':
-          $ref: '#/components/responses/InvalidInputError'
   /teams:
     get:
       tags:
@@ -1294,6 +1225,259 @@ paths:
       responses:
         '204':
           description: Team created successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/teams/{teamId}/users':
+    get:
+      summary: Get users in the team
+      description: Returns all users that are in the team
+      operationId: FindUsersByTeamId
+      tags:
+        - team
+        - user
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  count:
+                    type: integer
+                required:
+                  - users
+                  - count
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/teams/{teamId}/users/{userId}':
+    put:
+      summary: Add user to a team
+      operationId: AddUserToTeam
+      tags:
+        - team
+        - user
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
+        - $ref: '#/components/parameters/UserIDParam'
+      responses:
+        '204':
+          description: Ok
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      summary: Remove user from a team
+      operationId: RemoveUserFromTeam
+      tags:
+        - team
+        - user
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
+        - $ref: '#/components/parameters/UserIDParam'
+      responses:
+        '204':
+          description: Ok
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/teams/{teamId}/endpoints':
+    get:
+      tags:
+        - team
+        - endpoint
+      summary: Get all endpoints of a team
+      description: Returns all endpoints of that team. Does not include subteams.
+      operationId: FindEndpointsByTeam
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  endpoints:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Endpoint'
+                  count:
+                    type: integer
+                required:
+                  - endpoints
+                  - count
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      tags:
+        - team
+        - endpoint
+      summary: Create a new endpoint
+      description: Create a new endpoint which can then register itself with the server. The endpoint is associated to the team.
+      operationId: CreateEndpoint
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewEndpoint'
+      responses:
+        '201':
+          description: Endpoint created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  endpoint:
+                    $ref: '#/components/schemas/Endpoint'
+                  registrationToken:
+                    $ref: '#/components/schemas/EndpointRegistrationToken'
+                required:
+                  - endpoint
+                  - registrationToken
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/teams/{teamId}/endpoints/configurations':
+    get:
+      tags:
+        - team
+        - endpointConfiguration
+      summary: Get all available endpoint configurations of the team
+      description: Returns all available endpoint configurations. This is useful for the frontend to display all available endpoint configurations to the user which can then select one of them.
+      operationId: FindAllEndpointConfigurationsByTeam
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
+      responses:
+        '200':
+          description: All endpoint configurations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  configurations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EndpointConfiguration'
+                  count:
+                    type: number
+                    description: The amount of configurations returned
+                required:
+                  - configurations
+                  - count
+        '400':
+          $ref: '#/components/responses/UnauthorizedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      tags:
+        - team
+        - endpointConfiguration
+      summary: Create a new endpoint configuration in the team
+      description: Create a new endpoint configuration which can then be used for multiple endpoints. An endpoint configuration must exist before creating an endpoint, as an endpoint will be assigned a configuration when it is created.
+      operationId: CreateEndpointConfiguration
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
+      requestBody:
+        description: Endpoint configuration to be created
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewEndpointConfiguration'
+      responses:
+        '201':
+          description: Endpoint configuration created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointConfiguration'
+        '400':
+          $ref: '#/components/responses/UnauthorizedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/teams/{teamId}/routers':
+    get:
+      tags:
+        - router
+        - team
+      summary: Get team routers
+      description: Returns all routers of the team
+      operationId: GetRoutersByTeam
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  routers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Router'
+                  count:
+                    type: integer
+                required:
+                  - routers
+                  - count
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      tags:
+        - router
+        - team
+      summary: Create new router in the team
+      description: Create a new router in the team which can then register itself with the server
+      operationId: CreateRouter
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewRouter'
+      responses:
+        '201':
+          description: Router created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  router:
+                    $ref: '#/components/schemas/Router'
+                  registrationToken:
+                    $ref: '#/components/schemas/RouterRegistrationToken'
+                required:
+                  - router
+                  - registrationToken
+        '400':
+          $ref: '#/components/responses/BadRequestError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -1467,12 +1651,15 @@ components:
         - isRegistered
         - publicIP
         - configuration
+      description: A complete endpoint. Team is only unset, if it can be inferred otherwise, e.g. because /teams/id/endpoints was requested.
       allOf:
         - $ref: '#/components/schemas/SimpleEndpoint'
         - type: object
           properties:
             configuration:
               $ref: '#/components/schemas/EndpointConfiguration'
+            team:
+              $ref: '#/components/schemas/SimpleTeam'
     EndpointRegistrationToken:
       type: string
       description: A single-use token that is handed to the endpoint for registration.
@@ -1497,7 +1684,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/EditEndpointConfiguration'
     EndpointConfiguration:
-      description: The configuration of an endpoint.
+      description: The configuration of an endpoint. Team is only unset, if it can be inferred otherwise, e.g. because /teams/id/endpointConfigurations was requested.
       required:
       - id
       allOf:
@@ -1505,6 +1692,8 @@ components:
           properties:
             id:
               $ref: '#/components/schemas/EndpointConfigurationID'
+            team:
+              $ref: '#/components/schemas/SimpleTeam'
         - $ref: '#/components/schemas/NewEndpointConfiguration'
     PacketMatcher:
       type: object
@@ -1587,24 +1776,41 @@ components:
           type: string
           description: The log entry
           example: Received new connection from 1.1.1.1
-    Router:
+    EditRouter:
       type: object
-      required:
-        - id
-        - name
-        - isRegistered
+      description: Object to use when editing a router.
       properties:
-        id:
-          $ref: '#/components/schemas/RouterID'
         name:
           type: string
           example: Router H-1
         description:
           type: string
           example: The router hosted on the server in H-1.
-        isRegistered:
-          type: boolean
-          description: Shows whether the endpoint has been registered already.
+    NewRouter:
+      type: object
+      description: Object to use when creating a router.
+      required:
+        - name
+      allOf:
+        - $ref: '#/components/schemas/EditRouter'
+    Router:
+      type: object
+      description: A router, also known as Beehive. Team is only unset, if it can be inferred otherwise, e.g. because /teams/id/routers was requested.
+      required:
+        - id
+        - name
+        - isRegistered
+      allOf:
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/RouterID'
+            isRegistered:
+              type: boolean
+              description: Shows whether the endpoint has been registered already.
+            team:
+              $ref: '#/components/schemas/SimpleTeam'
+        - $ref: '#/components/schemas/NewRouter'
     RouterID:
       type: string
       format: uuid
@@ -1722,17 +1928,17 @@ components:
       example: 'Jane Doe'
     User:
       type: object
+      description: A user in our system. Team is only unset, if it can be inferred otherwise, e.g. because /teams/id/users was requested.
       required:
         - id
-        - group
         - name
       properties:
         id:
           $ref: '#/components/schemas/UserID'
-        group:
-          $ref: '#/components/schemas/UserGroup'
         name:
           $ref: '#/components/schemas/UserName'
+        team:
+          $ref: '#/components/schemas/SimpleTeam'
     TeamID:
       type: string
       format: uuid
@@ -1774,11 +1980,21 @@ components:
         - $ref: '#/components/schemas/SimpleTeam'
         - type: object
           properties:
+            parent:
+              $ref: '#/components/schemas/TeamID'
             subteams:
               type: array
               description: Direct subteams of a team. Does not include subsubteams etc.
               items:
                 $ref: '#/components/schemas/SimpleTeam'
+    TeamTransfer:
+      type: object
+      description: Object to use when transferring a resource from one team to another.
+      required:
+        - newTeamId
+      properties:
+        newTeamId:
+          $ref: '#/components/schemas/TeamID'
     Error:
       type: object
       properties:

@@ -1434,20 +1434,28 @@ components:
     SimpleEndpoint:
       type: object
       description: Endpoint that does not contain any relations.
+      properties:
+        id:
+          $ref: '#/components/schemas/EndpointID'
+        isRegistered:
+          type: boolean
+          description: Shows whether the endpoint has been registered already.
+        name:
+          type: string
+          example: AWS Endpoint
+        description:
+          type: string
+          example: Endpoint hosted on AWS
+        publicIP:
+          description: The public IP of the endpoint, using which it receives traffic from attackers.
+          type: string
+          format: ip
+          example: 133.7.42.42
       required:
         - id
         - name
         - isRegistered
         - publicIP
-      allOf:
-        - $ref: '#/components/schemas/BasicEndpoint'
-        - type: object
-          properties:
-            id:
-              $ref: '#/components/schemas/EndpointID'
-            isRegistered:
-              type: boolean
-              description: Shows whether the endpoint has been registered already.
     Endpoint:
       type: object
       required:

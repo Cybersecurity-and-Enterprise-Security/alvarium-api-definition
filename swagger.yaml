@@ -280,6 +280,27 @@ paths:
           description: Endpoint log entry added successfully
         '404':
           $ref: '#/components/responses/NotFoundError'
+  /endpoints/{endpointId}/stats:
+    post:
+      tags:
+        - endpoint
+      summary: Report statistics of an endpoint
+      description: Used by the endpoint to regularly contact the beekeeper to inform it about liveliness status and other stats.
+      operationId: AddEndpointStats
+      security:
+        - EndpointAuthentication: []
+      parameters:
+        - $ref: '#/components/parameters/EndpointIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndpointStats'
+      responses:
+        204:
+          description: Stats added successfully
+        404:
+          $ref: '#/components/responses/NotFoundError'
   /endpoints/configurations:
     get:
       tags:
@@ -1785,6 +1806,14 @@ components:
           type: string
           description: The log entry
           example: Received new connection from 1.1.1.1
+    EndpointStats:
+      type: object
+      description: Heartbeat information from an endpoint
+      properties:
+        timestamp:
+          type: string
+          description: ISO8601 date and time
+          example: '1970-01-20T:14:30:02.150Z'
     EditRouter:
       type: object
       description: Object to use when editing a router.
@@ -2031,8 +2060,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error
-'
+            $ref: '#/components/schemas/Error'
     NotFoundError:
       description: Object with the given ID not found
       content:

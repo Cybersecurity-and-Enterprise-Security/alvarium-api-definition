@@ -118,12 +118,12 @@ paths:
                 properties:
                   id:
                     $ref: '#/components/schemas/EndpointID'
-                  authenticationToken:
+                  apiKey:
                     type: string
                     description: A permanent authentication token that the endpoint uses to authenticate against the API.
                 required:
                   - id
-                  - authenticationToken
+                  - apiKey
         '401':
           $ref: '#/components/responses/UnauthorizedError'
   '/endpoints/{endpointId}':
@@ -210,6 +210,9 @@ paths:
         Returns the configuration of an endpoint. This includes which traffic to forward and
         where to forward the traffic to.
       operationId: GetEndpointConfig
+      security:
+        - EndpointAuthentication: []
+        - UserAuthentication: []
       parameters:
         - $ref: '#/components/parameters/EndpointIDParam'
       responses:
@@ -588,6 +591,7 @@ paths:
         The router receives a new permanent authentication token using which it can authenticate
         to the API and e.g. receive its configuration.
       operationId: RegisterRouter
+      security: []
       requestBody:
         required: true
         content:
@@ -609,12 +613,12 @@ paths:
                 properties:
                   id:
                     $ref: '#/components/schemas/RouterID'
-                  authenticationToken:
+                  apiKey:
                     type: string
                     description: A permanent authentication token that the router uses to authenticate against the API.
                 required:
                   - id
-                  - authenticationToken
+                  - apiKey
         '401':
           $ref: '#/components/responses/UnauthorizedError'
   '/routers/{routerId}':
@@ -711,6 +715,8 @@ paths:
       description: Starts an existing router. This is the first API call of a previously registered router when starting its operation. It will tell the API where the route is located (e.g. public IP).
       tags:
         - router
+      security:
+        - RouterAuthentication: []
       parameters:
         - $ref: '#/components/parameters/RouterIDParam'
       responses:
@@ -723,14 +729,15 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
       operationId: postRouterStartupStatusById
-      security:
-        - RouterAuthentication: []
   '/routers/{routerId}/config':
     post:
       summary: Get router config
       description: Returns the configuartion of the router with the specified ID.
       tags:
         - router
+      security:
+        - RouterAuthentication: []
+        - UserAuthentication: []
       parameters:
         - $ref: '#/components/parameters/RouterIDParam'
       responses:
@@ -782,8 +789,11 @@ paths:
     post:
       summary: Add new logline
       description: API-Endpoint to post to when a router shares logs
+      operationId: postRouterLogsById
       tags:
         - router
+      security:
+        - RouterAuthentication: []
       parameters:
         - $ref: '#/components/parameters/RouterIDParam'
       requestBody:
@@ -800,9 +810,6 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-      operationId: postRouterLogsById
-      security:
-        - EndpointAuthentication: []
   '/routers/{routerId}/metrics':
     get:
       summary: Get logs of a router
@@ -840,6 +847,8 @@ paths:
       description: API-Endpoint to post to when a router shares metrics
       tags:
         - router
+      security:
+        - RouterAuthentication: []
       parameters:
         - $ref: '#/components/parameters/RouterIDParam'
       responses:
@@ -1036,8 +1045,6 @@ paths:
       summary: Create new user
       description: Creates a new user which can interact with the honeynet GUI.
       operationId: AddNewUser
-      security:
-        - EndpointAuthentication: []
       requestBody:
          $ref: '#/components/requestBodies/UserJSON'
       responses:
@@ -1486,12 +1493,14 @@ paths:
 components:
   securitySchemes:
     EndpointAuthentication:
-      type: http
-      scheme: bearer
+      type: apiKey
+      in: header
+      name: X-API-KEY
       description: The authentication by endpoints using the authentication token received on registration.
     RouterAuthentication:
-      type: http
-      scheme: bearer
+      type: apiKey
+      in: header
+      name: X-API-KEY
       description: The authentication by routers using the authentication token received on registration.
     UserAuthentication:
       type: http
@@ -2022,7 +2031,8 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/Error
+'
     NotFoundError:
       description: Object with the given ID not found
       content:

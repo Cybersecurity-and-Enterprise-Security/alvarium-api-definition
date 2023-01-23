@@ -1173,8 +1173,12 @@ paths:
             schema:
               $ref: '#/components/schemas/NewTeam'
       responses:
-        '204':
+        '201':
           description: Team created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
   '/teams/{teamId}':
@@ -1251,8 +1255,12 @@ paths:
             schema:
               $ref: '#/components/schemas/NewTeam'
       responses:
-        '204':
+        '201':
           description: Team created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':

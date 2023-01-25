@@ -1052,7 +1052,7 @@ paths:
                   users:
                     type: array
                     items:
-                      $ref: '#/components/schemas/User'
+                      $ref: '#/components/schemas/GlobalUser'
                   count:
                     type: integer
                 required:
@@ -1088,7 +1088,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/GlobalUser'
     patch:
       tags:
         - user
@@ -1101,14 +1101,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/EditUser'
       responses:
         '200':
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/GlobalUser'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -1278,7 +1278,7 @@ paths:
                   users:
                     type: array
                     items:
-                      $ref: '#/components/schemas/User'
+                      $ref: '#/components/schemas/TeamUser'
                   count:
                     type: integer
                 required:
@@ -1298,6 +1298,11 @@ paths:
       parameters:
         - $ref: '#/components/parameters/TeamIDParam'
         - $ref: '#/components/parameters/UserIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserTeamAssignment'
       responses:
         '204':
           description: Ok
@@ -1681,6 +1686,7 @@ components:
         - isRegistered
         - publicIP
         - configuration
+        - permissions
       description: A complete endpoint. Team is only unset, if it can be inferred otherwise, e.g. because /teams/id/endpoints was requested.
       allOf:
         - $ref: '#/components/schemas/SimpleEndpoint'
@@ -1690,6 +1696,8 @@ components:
               $ref: '#/components/schemas/EndpointConfiguration'
             team:
               $ref: '#/components/schemas/SimpleTeam'
+            permissions:
+              $ref: '#/components/schemas/UserObjectPermissions'
     EndpointRegistrationToken:
       type: string
       description: A single-use token that is handed to the endpoint for registration.
@@ -1717,6 +1725,8 @@ components:
       description: The configuration of an endpoint. Team is only unset, if it can be inferred otherwise, e.g. because /teams/id/endpointConfigurations was requested.
       required:
       - id
+      - name
+      - permissions
       allOf:
         - type: object
           properties:
@@ -1724,6 +1734,8 @@ components:
               $ref: '#/components/schemas/EndpointConfigurationID'
             team:
               $ref: '#/components/schemas/SimpleTeam'
+            permissions:
+              $ref: '#/components/schemas/UserObjectPermissions'
         - $ref: '#/components/schemas/NewEndpointConfiguration'
     PacketMatcher:
       type: object
@@ -1838,6 +1850,7 @@ components:
         - id
         - name
         - isRegistered
+        - permissions
       allOf:
         - type: object
           properties:
@@ -1848,6 +1861,8 @@ components:
               description: Shows whether the endpoint has been registered already.
             team:
               $ref: '#/components/schemas/SimpleTeam'
+            permissions:
+              $ref: '#/components/schemas/UserObjectPermissions'
         - $ref: '#/components/schemas/NewRouter'
     RouterID:
       type: string
@@ -1966,7 +1981,7 @@ components:
       example: 'Jane Doe'
     User:
       type: object
-      description: A user in our system. Team is only unset, if it can be inferred otherwise, e.g. because /teams/id/users was requested.
+      description: A user in our system.
       required:
         - id
         - name
@@ -1975,8 +1990,38 @@ components:
           $ref: '#/components/schemas/UserID'
         name:
           $ref: '#/components/schemas/UserName'
-        team:
-          $ref: '#/components/schemas/SimpleTeam'
+    TeamUser:
+      type: object
+      description: A user that is part of a team.
+      required:
+        - id
+        - name
+        - role
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            role:
+              $ref: '#/components/schemas/UserTeamRole'
+    GlobalUser:
+      type: object
+      description: A user that is returned as part of a global query.
+      required:
+        - id
+        - name
+        - role
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            role:
+              $ref: '#/components/schemas/GlobalUserRole'
+    EditUser:
+      type: object
+      description: Object to update a user.
+      properties:
+        role:
+          $ref: '#/components/schemas/GlobalUserRole'
     TeamID:
       type: string
       format: uuid
@@ -2014,6 +2059,7 @@ components:
         - id
         - name
         - subteams
+        - role
       allOf:
         - $ref: '#/components/schemas/SimpleTeam'
         - type: object
@@ -2025,6 +2071,8 @@ components:
               description: Direct subteams of a team. Does not include subsubteams etc.
               items:
                 $ref: '#/components/schemas/SimpleTeam'
+            role:
+              $ref: '#/components/schemas/UserTeamRole'
     TeamTransfer:
       type: object
       description: Object to use when transferring a resource from one team to another.
@@ -2048,6 +2096,41 @@ components:
           example: 🧑‍🌾 🐝 🐝 🐝
       required:
         - message
+    GlobalUserRole:
+      type: string
+      description: Global role of the user in the Alvarium system.
+      enum:
+        - user
+        - beehiveOperator
+        - admin
+    UserTeamRole:
+      type: string
+      description: Role to assign to the user in the team.
+      enum:
+        - guest
+        - researcher
+        - maintainer
+        - owner
+    UserTeamAssignment:
+      type: object
+      description: Assigning a user to a team
+      required:
+        - role
+      properties:
+        role:
+          $ref: '#/components/schemas/UserTeamRole'
+    UserObjectPermission:
+      type: string
+      description: Permission what a user can do on an object.
+      enum:
+        - read
+        - write
+        - admin
+    UserObjectPermissions:
+      type: array
+      description: Permissions what a user can do on an object.
+      items:
+        $ref: '#/components/schemas/UserObjectPermission'
   responses:
     BadRequestError:
       description: The supplied input is invalid

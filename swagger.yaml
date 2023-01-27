@@ -19,14 +19,14 @@ servers:
           - http
           - https
       environment:
-        default: production    # Production server
+        default: production # Production server
         enum:
-          - production         # Production server
-          - staging            # Staging server
+          - production # Production server
+          - staging # Staging server
 
   - url: 'http://localhost:3000/v1'
     description: 'Local testing'
-    
+
 tags:
   - name: endpoint
     description: Endpoints that receive connections and forward the traffic to the routers
@@ -76,17 +76,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  endpoints:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Endpoint'
-                  count:
-                    type: integer
-                required:
-                  - endpoints
-                  - count
+                $ref: '#/components/schemas/AllEndpointsResponse'
   /endpoints/register:
     post:
       tags:
@@ -102,28 +92,14 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                registrationToken:
-                  $ref: '#/components/schemas/EndpointRegistrationToken'
-              required:
-                - registrationToken
+              $ref: '#/components/schemas/RegisterEndpointRequest'
       responses:
         '201':
           description: Endpoint registered successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    $ref: '#/components/schemas/EndpointID'
-                  apiKey:
-                    type: string
-                    description: A permanent authentication token that the endpoint uses to authenticate against the API.
-                required:
-                  - id
-                  - apiKey
+                $ref: '#/components/schemas/RegisterEndpointResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
   '/endpoints/{endpointId}':
@@ -158,7 +134,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditEndpoint'
+              $ref: '#/components/schemas/EditEndpointRequest'
       responses:
         '200':
           description: Update successfully
@@ -314,18 +290,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  configurations:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/EndpointConfiguration'
-                  count:
-                    type: number
-                    description: The amount of configurations returned
-                required:
-                  - configurations
-                  - count
+                $ref: '#/components/schemas/AllEndpointConfigurationsResponse'
         '400':
           $ref: '#/components/responses/UnauthorizedError'
         '401':
@@ -338,7 +303,7 @@ paths:
       description: Returns a specific endpoint configuration.
       operationId: FindEndpointConfiguration
       parameters:
-        - $ref: '#/components/parameters/EndpointConfigurationID'
+        - $ref: '#/components/parameters/EndpointConfigurationIDParam'
       responses:
         '200':
           description: The requested endpoint configuration
@@ -359,7 +324,7 @@ paths:
       description: Modifies an existing endpoint configuration. As a side effect, modifying this configuration will modify the configuration of all endpoints connected with this specific configuration.
       operationId: EditEndpointConfiguration
       parameters:
-        - $ref: '#/components/parameters/EndpointConfigurationID'
+        - $ref: '#/components/parameters/EndpointConfigurationIDParam'
       requestBody:
         description: Modified endpoint configuration
         required: true
@@ -387,7 +352,7 @@ paths:
       description: Deletes an existing endpoint configuration. If an endpoint is assigned to this configuration, the configuration cannot be deleted.
       operationId: DeleteEndpointConfiguration
       parameters:
-        - $ref: '#/components/parameters/EndpointConfigurationID'
+        - $ref: '#/components/parameters/EndpointConfigurationIDParam'
       responses:
         '204':
           description: Endpoint configuration deleted successfully
@@ -406,7 +371,7 @@ paths:
       description: Transfers the ownership of the endpoint to a different team.
       operationId: TransferEndpointConfiguration
       parameters:
-        - $ref: '#/components/parameters/EndpointConfigurationID'
+        - $ref: '#/components/parameters/EndpointConfigurationIDParam'
       requestBody:
         content:
           application/json:
@@ -436,17 +401,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - forwardingRules
-                  - count
-                properties:
-                  forwardingRules:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/EndpointForwardingRule'
-                  count:
-                    type: integer
+                $ref: '#/components/schemas/AllEndpointForwardingRulesResponse'
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -492,17 +447,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - forwardingRules
-                  - count
-                properties:
-                  forwardingRules:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/EndpointForwardingRule'
-                  count:
-                    type: integer
+               $ref: '#/components/schemas/AllEndpointForwardingRulesResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
   /endpointForwardingRules/{forwardingRuleId}:
@@ -589,17 +534,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  routers:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Router'
-                  count:
-                    type: integer
-                required:
-                  - routers
-                  - count
+                $ref: '#/components/schemas/AllRoutersResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
   /routers/register:
@@ -618,28 +553,14 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                registrationToken:
-                  $ref: '#/components/schemas/RouterRegistrationToken'
-              required:
-                - registrationToken
+              $ref: '#/components/schemas/RegisterRouterRequest'
       responses:
         '201':
           description: Router registered successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    $ref: '#/components/schemas/RouterID'
-                  apiKey:
-                    type: string
-                    description: A permanent authentication token that the router uses to authenticate against the API.
-                required:
-                  - id
-                  - apiKey
+                $ref: '#/components/schemas/RegisterRouterResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
   '/routers/{routerId}':
@@ -675,7 +596,11 @@ paths:
       parameters:
         - $ref: '#/components/parameters/RouterIDParam'
       requestBody:
-        $ref: '#/components/requestBodies/RouterJSON'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditRouter'
       responses:
         '200':
           description: Update successfully
@@ -787,19 +712,9 @@ paths:
         '200':
           description: Ok
           content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  endpoints:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/RouterLog'
-                  count:
-                    type: integer
-                required:
-                  - endpoints
-                  - count
+           application/json:
+            schema:
+              $ref: '#/components/schemas/AllRouterLogsResponse'
         '400':
           description: invalid ID supplied
         '401':
@@ -845,17 +760,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  endpoints:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/RouterMetrics'
-                  count:
-                    type: integer
-                required:
-                  - endpoints
-                  - count
+                $ref: '#/components/schemas/AllRouterMetricsResponse'
         '400':
           description: invalid ID supplied
         '401':
@@ -902,17 +807,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  honeypots:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Honeypot'
-                  count:
-                    type: integer
-                required:
-                  - honeypots
-                  - count
+                $ref: '#/components/schemas/AllHoneypotsResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
     post:
@@ -954,17 +849,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  honeypots:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Honeypot'
-                  count:
-                    type: integer
-                required:
-                  - honeypots
-                  - count
+                $ref: '#/components/schemas/AllHoneypotsResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
   /honeypots/{honeypotId}:
@@ -1047,30 +932,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  users:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/GlobalUser'
-                  count:
-                    type: integer
-                required:
-                  - users
-                  - count
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-    post:
-      tags:
-        - user
-      summary: Create new user
-      description: Creates a new user which can interact with the honeynet GUI.
-      operationId: AddNewUser
-      requestBody:
-         $ref: '#/components/requestBodies/UserJSON'
-      responses:
-        '204':
-          description: User created successfully
+                $ref: '#/components/schemas/AllUsersResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
   '/users/{userId}':
@@ -1148,17 +1010,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  teams:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Team'
-                  count:
-                    type: integer
-                required:
-                  - teams
-                  - count
+                $ref: '#/components/schemas/AllTeamsResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
     post:
@@ -1280,17 +1132,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  users:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/TeamUser'
-                  count:
-                    type: integer
-                required:
-                  - users
-                  - count
+                $ref: '#/components/schemas/UserTeamsResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -1346,19 +1188,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  endpoints:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Endpoint'
-                  count:
-                    type: integer
-                  permissions:
-                    $ref: '#/components/schemas/UserObjectPermissions'
-                required:
-                  - endpoints
-                  - count
+                $ref: '#/components/schemas/AllEndpointsResponse'
         '404':
           $ref: '#/components/responses/NotFoundError'
     post:
@@ -1373,22 +1203,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewEndpoint'
+              $ref: '#/components/schemas/NewEndpointRequest'
       responses:
         '201':
           description: Endpoint created
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  endpoint:
-                    $ref: '#/components/schemas/Endpoint'
-                  registrationToken:
-                    $ref: '#/components/schemas/EndpointRegistrationToken'
-                required:
-                  - endpoint
-                  - registrationToken
+                $ref: '#/components/schemas/NewEndpointResponse'
         '404':
           $ref: '#/components/responses/NotFoundError'
   '/teams/{teamId}/endpoints/configurations':
@@ -1406,20 +1228,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  configurations:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/EndpointConfiguration'
-                  count:
-                    type: number
-                    description: The amount of configurations returned
-                  permissions:
-                    $ref: '#/components/schemas/UserObjectPermissions'
-                required:
-                  - configurations
-                  - count
+                $ref: '#/components/schemas/AllTeamEndpointConfigurationsResponse'
         '400':
           $ref: '#/components/responses/UnauthorizedError'
         '401':
@@ -1469,19 +1278,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  routers:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Router'
-                  count:
-                    type: integer
-                  permissions:
-                    $ref: '#/components/schemas/UserObjectPermissions'
-                required:
-                  - routers
-                  - count
+                $ref: '#/components/schemas/AllRoutersResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -1505,15 +1302,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  router:
-                    $ref: '#/components/schemas/Router'
-                  registrationToken:
-                    $ref: '#/components/schemas/RouterRegistrationToken'
-                required:
-                  - router
-                  - registrationToken
+                $ref: '#/components/schemas/NewRouterResponse'
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -1559,7 +1348,7 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/UserID'
-    EndpointConfigurationID:
+    EndpointConfigurationIDParam:
       name: configurationId
       in: path
       description: ID of the configuration to operate on
@@ -1587,31 +1376,6 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/TeamID'
-  requestBodies:
-    RouterJSON:
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              name:
-                type: string
-              description:
-                type: string
-      description: Router to be created
-      required: true
-    UserJSON:
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              name:
-                type: string
-              group:
-                type: string
-      description: Endpoint to be created
-      required: true
   schemas:
     EndpointID:
       type: string
@@ -1647,11 +1411,12 @@ components:
     NewEndpoint:
       type: object
       description: The object to use when creating a new Endpoint object
-      required:
-        - name
-        - configurationId
       allOf:
         - $ref: '#/components/schemas/EditEndpoint'
+        - type: object
+          required:
+          - name
+          - configurationId
     SimpleEndpoint:
       type: object
       description: Endpoint that does not contain any relations.
@@ -1688,16 +1453,16 @@ components:
         - lastHeartbeat
     Endpoint:
       type: object
-      required:
-        - id
-        - name
-        - isRegistered
-        - publicIP
-        - configuration
       description: A complete endpoint. Team is only unset, if it can be inferred otherwise, e.g. because /teams/id/endpoints was requested.
       allOf:
         - $ref: '#/components/schemas/SimpleEndpoint'
         - type: object
+          required:
+            - id
+            - name
+            - isRegistered
+            - publicIP
+            - configuration
           properties:
             configuration:
               $ref: '#/components/schemas/EndpointConfiguration'
@@ -1705,6 +1470,197 @@ components:
               $ref: '#/components/schemas/SimpleTeam'
             permissions:
               $ref: '#/components/schemas/UserObjectPermissions'
+    EndpointApiKey:
+      type: string
+      description: A permanent authentication token that the endpoint uses to authenticate against the API.
+    RouterApiKey:
+      type: string
+      description: A permanent authentication token that the endpoint uses to authenticate against the API.
+    NewEndpointRequest:
+      allOf:
+        - $ref: '#/components/schemas/NewEndpoint'
+    NewEndpointResponse:
+      type: object
+      required:
+        - endpoint
+        - registrationToken
+      properties:
+        endpoint:
+          $ref: '#/components/schemas/Endpoint'
+        registrationToken:
+          $ref: '#/components/schemas/EndpointRegistrationToken'
+    EditEndpointRequest:
+      allOf:
+        - $ref: '#/components/schemas/EditEndpoint'
+    RegisterEndpointRequest:
+      type: object
+      properties:
+        registrationToken:
+          $ref: '#/components/schemas/EndpointRegistrationToken'
+      required:
+        - registrationToken
+    RegisterRouterRequest:
+      type: object
+      properties:
+        registrationToken:
+          $ref: '#/components/schemas/RouterRegistrationToken'
+      required:
+        - registrationToken
+    RegisterEndpointResponse:
+      type: object
+      required:
+        - id
+        - apiKey
+      properties:
+        id:
+          $ref: '#/components/schemas/EndpointID'
+        apiKey:
+          $ref: '#/components/schemas/EndpointApiKey'
+    RegisterRouterResponse:
+      type: object
+      required:
+        - id
+        - apiKey
+      properties:
+        id:
+          $ref: '#/components/schemas/RouterID'
+        apiKey:
+          $ref: '#/components/schemas/RouterApiKey'
+    AllEndpointsResponse:
+      type: object
+      required:
+        - endpoints
+        - count
+      properties:
+        endpoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/Endpoint'
+        count:
+          type: integer
+        permissions:
+          $ref: '#/components/schemas/UserObjectPermissions'
+    AllEndpointConfigurationsResponse:
+      type: object
+      required:
+        - configurations
+        - count
+      properties:
+        configurations:
+          type: array
+          items:
+            $ref: '#/components/schemas/EndpointConfiguration'
+        count:
+            type: integer
+            description: The amount of configurations returned
+    AllTeamEndpointConfigurationsResponse:
+      allOf:
+        - $ref: '#/components/schemas/AllEndpointConfigurationsResponse'
+        - type: object
+          required:
+            - permissions
+          properties:
+            permissions:
+              $ref: '#/components/schemas/UserObjectPermissions'
+    AllUsersResponse:
+      type: object
+      required:
+        - users
+        - count
+      properties:
+        users:
+          type: array
+          items:
+          # Change here for GlobalUser once roles are merged
+            $ref: '#/components/schemas/User'
+        count:
+          type: integer
+    AllRoutersResponse:
+      type: object
+      required:
+        - routers
+        - count
+      properties:
+        routers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Router'
+        count:
+          type: integer
+        permissions:
+          $ref: '#/components/schemas/UserObjectPermissions'
+    AllRouterLogsResponse:
+      type: object
+      properties:
+        endpoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/RouterLog'
+        count:
+          type: integer
+      required:
+        - endpoints
+        - count
+    AllRouterMetricsResponse:
+      type: object
+      properties:
+        endpoints:
+          type: array
+          items:
+             $ref: '#/components/schemas/RouterMetrics'
+        count:
+          type: integer
+      required:
+        - endpoints
+        - count
+    AllEndpointForwardingRulesResponse:
+      type: object
+      required:
+        - forwardingRules
+        - count
+      properties:
+        forwardingRules:
+          type: array
+          items:
+            $ref: '#/components/schemas/EndpointForwardingRule'
+        count:
+          type: integer
+    AllTeamsResponse:
+      type: object
+      required:
+        - teams
+        - count
+      properties:
+        teams:
+          type: array
+          items:
+            $ref: '#/components/schemas/Team'
+        count:
+          type: integer
+    AllHoneypotsResponse:
+      type: object
+      required:
+        - honeypots
+        - count
+      properties:
+        honeypots:
+          type: array
+          items:
+            $ref: '#/components/schemas/Honeypot'
+        count:
+          type: integer
+    UserTeamsResponse:
+      type: object
+      required:
+        - users
+        - count
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamUser'
+        count:
+          type: integer
     EndpointRegistrationToken:
       type: string
       description: A single-use token that is handed to the endpoint for registration.
@@ -1730,11 +1686,11 @@ components:
         - $ref: '#/components/schemas/EditEndpointConfiguration'
     EndpointConfiguration:
       description: The configuration of an endpoint. Team is only unset, if it can be inferred otherwise, e.g. because /teams/id/endpointConfigurations was requested.
-      required:
-      - id
-      - name
       allOf:
         - type: object
+          required:
+            - id
+            - name
           properties:
             id:
               $ref: '#/components/schemas/EndpointConfigurationID'
@@ -1757,7 +1713,7 @@ components:
             - tcp
             - udp
         port:
-          type: number
+          type: integer
           description: The port to deny traffic to.
           example: 80
     EndpointIngressDenyRule:
@@ -1771,6 +1727,10 @@ components:
     EditEndpointForwardingRule:
       type: object
       description: The object to use when editing a new endpoint forwarding rule.
+      required:
+        - endpointMatcher
+        - routerMatcher
+        - honeypotType
       properties:
         endpointMatcher:
           description: Packet matcher that the endpoint uses to filter the packets that apply to this forwarding rule.
@@ -1800,14 +1760,14 @@ components:
       description: |
         An endpoint forwarding rule.
         When the `honeypot` property is set, a decision has been made to route traffic to a specific honeypot on a specific router.
-      required:
-        - id
-        - endpoint
-        - endpointMatcher
-        - routerMatcher
-        - honeypotType
       allOf:
         - type: object
+          required:
+            - id
+            - endpoint
+            - endpointMatcher
+            - routerMatcher
+            - honeypotType
           properties:
             id:
               $ref: '#/components/schemas/EndpointForwardingRuleID'
@@ -1845,19 +1805,21 @@ components:
     NewRouter:
       type: object
       description: Object to use when creating a router.
-      required:
-        - name
       allOf:
         - $ref: '#/components/schemas/EditRouter'
+        - type: object
+          required:
+          - name
     Router:
       type: object
       description: A router, also known as Beehive. Team is only unset, if it can be inferred otherwise, e.g. because /teams/id/routers was requested.
       required:
-        - id
         - name
-        - isRegistered
       allOf:
         - type: object
+          required:
+            - id
+            - isRegistered
           properties:
             id:
               $ref: '#/components/schemas/RouterID'
@@ -1911,6 +1873,16 @@ components:
           type: string
           description: The metrics entry
           example: Received new connection from Endpoint X.X.X.X
+    NewRouterResponse:
+      type: object
+      required:
+        - router
+        - registrationToken
+      properties:
+        router:
+          $ref: '#/components/schemas/Router'
+        registrationToken:
+          $ref: '#/components/schemas/RouterRegistrationToken'
     HoneypotID:
       type: string
       format: uuid
@@ -1939,13 +1911,13 @@ components:
     NewHoneypot:
       type: object
       description: The object to use when creating a new honeypot.
-      required:
-        - ip
-        - type
-        - dynamic
       allOf:
         - $ref: '#/components/schemas/EditHoneypot'
         - type: object
+          required:
+          - ip
+          - type
+          - dynamic
           properties:
             dynamic:
               type: boolean
@@ -1955,15 +1927,15 @@ components:
       description: |
         A honeypot (e.g. a single running Docker container).
         When `endpointForwardingRule` is set, the honeypot is assigned to the corresponding endpoint.
-      required:
-        - id
-        - ip
-        - type
-        - router
-        - dynamic
-        - name
       allOf:
         - type: object
+          required:
+            - id
+            - name
+            - ip
+            - type
+            - dynamic
+            - router
           properties:
             id:
               $ref: '#/components/schemas/HoneypotID'
@@ -1987,14 +1959,16 @@ components:
     User:
       type: object
       description: A user in our system.
-      required:
-        - id
-        - name
-      properties:
-        id:
-          $ref: '#/components/schemas/UserID'
-        name:
-          $ref: '#/components/schemas/UserName'
+      allOf:
+        - type: object
+          required:
+            - id
+            - name
+          properties:
+            id:
+              $ref: '#/components/schemas/UserID'
+            name:
+              $ref: '#/components/schemas/UserName'
     TeamUser:
       type: object
       description: A user that is part of a team.
@@ -2042,31 +2016,39 @@ components:
     NewTeam:
       type: object
       description: Object to use when creating a team
-      required:
-        - name
       allOf:
         - $ref: '#/components/schemas/EditTeam'
+        - type: object
+          required:
+          - name
     SimpleTeam:
       type: object
       description: The basic properties of a team without relations
-      required:
-        - id
         - name
       allOf:
         - type: object
+          required:
+            - id
           properties:
             id:
               $ref: '#/components/schemas/TeamID'
         - $ref: '#/components/schemas/NewTeam'
+    NewSubteam:
+      type: object
+      description: Object to use when creating a team
+      required:
+        - name
+      allOf:
+        - $ref: '#/components/schemas/EditTeam'
     Team:
       type: object
-      required:
-        - id
-        - name
-        - role
       allOf:
         - $ref: '#/components/schemas/SimpleTeam'
         - type: object
+          required:
+            - id
+            - name
+            - role
           properties:
             parent:
               $ref: '#/components/schemas/TeamID'

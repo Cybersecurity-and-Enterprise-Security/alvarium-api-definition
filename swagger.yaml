@@ -42,6 +42,8 @@ tags:
     description: Users which can use the honeynet via the GUI
   - name: team
     description: Teams are a collection of users and group ressources in a hierarchy
+  - name: experiment
+    description: Experiments can be conducted within a team.
 security:
   - UserAuthentication: []
 paths:
@@ -1314,7 +1316,96 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
+  '/teams/{teamId}/experiments':
+    get:
+      tags:
+        - experiment
+      summary: Get Experiments By Team
+      operationId: GetExperimentsByTeamId
+      parameters:
+      - $ref: '#/components/parameters/TeamIDParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/AllExperimentsResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      tags:
+        - experiment
+      summary: Add Experiment To Team
+      operationId: CreateExperimentByTeamId
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewExperiment'
+      responses:
+        '201':
+          description: Experiment Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Experiment'
+  '/experiments/{experimentId}':
+    get:
+      tags:
+      - experiment
+      summary: Get Experiment By ID
+      operationId: GetExperimentById
+      parameters:
+        - $ref: '#/components/parameters/ExperimentIDParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Experiment'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    patch:
+      tags:
+        - experiment
+      summary: Edit Experiment By ID
+      operationId: EditExperiment
+      parameters:
+        - $ref: '#/components/parameters/ExperimentIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditExperiment'
+      responses:
+        '201':
+          description: Experiment Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Experiment'
+    delete:
+      tags:
+        - experiment
+      summary: Delete Experiment By ID
+      operationId: DeleteExperiment
+      parameters:
+        - $ref: '#/components/parameters/ExperimentIDParam'
+      responses:
+        '204':
+          description: Ok
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
 components:
   securitySchemes:
     EndpointAuthentication:
@@ -1381,12 +1472,23 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/TeamID'
+    ExperimentIDParam:
+      name: experimentId
+      in: path
+      description: ID of the endpoint to operate on
+      required: true
+      schema:
+        $ref: '#/components/schemas/ExperimentID'
   schemas:
     EndpointID:
       type: string
       format: uuid
       description: The unique identifier of an endpoint
     EndpointConfigurationID:
+      type: string
+      format: uuid
+      description: The unique identifier of an endpoint configuration
+    EndpointIngressDenyRuleID:
       type: string
       format: uuid
       description: The unique identifier of an endpoint configuration
@@ -1795,6 +1897,10 @@ components:
           type: string
           description: The log entry
           example: Received new connection from 1.1.1.1
+    EndpointHeartbeat:
+        type: string
+        description: ISO8601 date and time
+        example: '1970-01-20T:14:30:02.150Z'
     EndpointStats:
       type: object
       description: Heartbeat information from an endpoint
@@ -2138,6 +2244,114 @@ components:
           - read
           - write
           - admin
+    ExperimentID:
+      type: string
+      format: uuid
+      description: The unique identifier of an endpoint
+    ExperimentStatus:
+      type: string
+      description: indicates whether an experiment has been planned, started, ended or failed
+      enum:
+        - planned
+        - started
+        - ended
+        - failed
+    ExperimentTimeframe:
+      type: object
+      description: Object to define the timeframe for an experiment
+      required:
+        - startTimestamp
+        - endTimestamp
+      properties:
+        startTimestamp:
+          type: string
+          format: date-time
+          description: Start time of the experiment.
+        endTimestamp:
+          type: string
+          format: date-time
+          description: End time of the experiment.
+    FilteredEndpointsCount:
+      type: object
+      description: returns the amount of endpoints which match the filter criteria
+      properties:
+        count:
+          type: integer
+    EndpointFilterParams:
+      type: object
+      properties:
+        type:
+          type: string
+        country:
+          type: string
+        nat:
+          type: string
+    SimpleExperiment:
+      type: object
+      description: Object that contains properties which are used by any other experiment object
+      required:
+        - name
+        - image
+        - amount
+        - teamId
+        - timeframe
+      properties:
+        name:
+          type: string
+        image:
+          type: string
+        amount:
+          type: integer
+        timeframe:
+          $ref: '#/components/schemas/ExperimentTimeframe'
+    EditExperiment:
+      type: object
+      description: Object to use when editing an existing Experiment
+      required:
+        - teamId
+      allOf:
+        - $ref: '#/components/schemas/SimpleExperiment'
+      properties:
+        teamId:
+          $ref: '#/components/schemas/TeamID'
+    NewExperiment:
+      type: object
+      description: The object to use when creating a new Experiment
+      allOf:
+        - $ref: '#/components/schemas/SimpleExperiment'
+    Experiment:
+      type: object
+      description: The object to return when creating or editing an experiment
+      allOf:
+        - $ref: '#/components/schemas/SimpleExperiment'
+        - type: object
+          required:
+            - id
+            - status
+            - team
+          properties:
+            id:
+              $ref: '#/components/schemas/ExperimentID'
+            status:
+              $ref: '#/components/schemas/ExperimentStatus'
+            team:
+               $ref: '#/components/schemas/Team'
+            permissions:
+                $ref: '#/components/schemas/UserObjectPermissions'
+    AllExperimentsResponse:
+      type: object
+      properties:
+        experiments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Experiment'
+        count:
+          type: integer
+        permissions:
+          $ref: '#/components/schemas/UserObjectPermissions'
+      required:
+      - experiments
+      - count
   responses:
     BadRequestError:
       description: The supplied input is invalid

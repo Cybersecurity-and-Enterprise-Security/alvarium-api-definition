@@ -1358,6 +1358,8 @@ paths:
                       $ref: '#/components/schemas/Endpoint'
                   count:
                     type: integer
+                  permissions:
+                    $ref: '#/components/schemas/UserObjectPermissions'
                 required:
                   - endpoints
                   - count
@@ -1419,6 +1421,8 @@ paths:
                   count:
                     type: number
                     description: The amount of configurations returned
+                  permissions:
+                    $ref: '#/components/schemas/UserObjectPermissions'
                 required:
                   - configurations
                   - count
@@ -1481,6 +1485,8 @@ paths:
                       $ref: '#/components/schemas/Router'
                   count:
                     type: integer
+                  permissions:
+                    $ref: '#/components/schemas/UserObjectPermissions'
                 required:
                   - routers
                   - count
@@ -1697,7 +1703,6 @@ components:
         - isRegistered
         - publicIP
         - configuration
-        - permissions
       description: A complete endpoint. Team is only unset, if it can be inferred otherwise, e.g. because /teams/id/endpoints was requested.
       allOf:
         - $ref: '#/components/schemas/SimpleEndpoint'
@@ -1737,7 +1742,6 @@ components:
       required:
       - id
       - name
-      - permissions
       allOf:
         - type: object
           properties:
@@ -1861,7 +1865,6 @@ components:
         - id
         - name
         - isRegistered
-        - permissions
       allOf:
         - type: object
           properties:
@@ -2133,6 +2136,7 @@ components:
       type: string
       description: Permission what a user can do on an object.
       enum:
+        - create
         - read
         - write
         - admin

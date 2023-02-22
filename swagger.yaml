@@ -1271,7 +1271,6 @@ paths:
       description: Returns all users that are in the team
       operationId: FindUsersByTeamId
       tags:
-        - team
         - user
       parameters:
         - $ref: '#/components/parameters/TeamIDParam'
@@ -1302,7 +1301,6 @@ paths:
       operationId: AddUserToTeam
       tags:
         - team
-        - user
       parameters:
         - $ref: '#/components/parameters/TeamIDParam'
         - $ref: '#/components/parameters/UserIDParam'
@@ -1323,7 +1321,6 @@ paths:
       operationId: RemoveUserFromTeam
       tags:
         - team
-        - user
       parameters:
         - $ref: '#/components/parameters/TeamIDParam'
         - $ref: '#/components/parameters/UserIDParam'
@@ -1337,7 +1334,6 @@ paths:
   '/teams/{teamId}/endpoints':
     get:
       tags:
-        - team
         - endpoint
       summary: Get all endpoints of a team
       description: Returns all endpoints of that team. Does not include subteams.
@@ -1367,7 +1363,6 @@ paths:
           $ref: '#/components/responses/NotFoundError'
     post:
       tags:
-        - team
         - endpoint
       summary: Create a new endpoint
       description: Create a new endpoint which can then register itself with the server. The endpoint is associated to the team.
@@ -1399,7 +1394,6 @@ paths:
   '/teams/{teamId}/endpoints/configurations':
     get:
       tags:
-        - team
         - endpointConfiguration
       summary: Get all available endpoint configurations of the team
       description: Returns all available endpoint configurations. This is useful for the frontend to display all available endpoint configurations to the user which can then select one of them.
@@ -1434,7 +1428,6 @@ paths:
           $ref: '#/components/responses/NotFoundError'
     post:
       tags:
-        - team
         - endpointConfiguration
       summary: Create a new endpoint configuration in the team
       description: Create a new endpoint configuration which can then be used for multiple endpoints. An endpoint configuration must exist before creating an endpoint, as an endpoint will be assigned a configuration when it is created.
@@ -1465,7 +1458,6 @@ paths:
     get:
       tags:
         - router
-        - team
       summary: Get team routers
       description: Returns all routers of the team
       operationId: GetRoutersByTeam
@@ -1497,7 +1489,6 @@ paths:
     post:
       tags:
         - router
-        - team
       summary: Create new router in the team
       description: Create a new router in the team which can then register itself with the server
       operationId: CreateRouter

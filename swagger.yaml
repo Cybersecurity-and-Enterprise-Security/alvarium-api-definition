@@ -820,6 +820,9 @@ paths:
       summary: Add New Honeypot Of Router
       description: Adds a new honeypot to the specified router
       operationId: CreateHoneypot
+      security:
+        - RouterAuthentication: []
+        - UserAuthentication: []
       requestBody:
         content:
           application/json:
@@ -834,6 +837,32 @@ paths:
                 $ref: '#/components/schemas/Honeypot'
         '400':
           $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/routers/{routerId}/experiments':
+    get:
+      summary: Get experiments assigned to the router
+      description: Returns all the experiments which are currently assigned to the router.
+      operationId: GetExperimentsByRouter
+      tags:
+        - router
+      parameters:
+        - $ref: '#/components/parameters/RouterIDParam'
+        - $ref: '#/components/parameters/ExperimentStatusParam'
+      security:
+        - RouterAuthentication: []
+        - UserAuthentication: []
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllExperimentsResponse'
+        '400':
+          description: invalid ID supplied
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -1491,6 +1520,12 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/ExperimentID'
+    ExperimentStatusParam:
+      name: status
+      in: query
+      description: Status of the experiments to filter for
+      schema:
+        $ref: '#/components/schemas/ExperimentStatus'
   schemas:
     EndpointID:
       type: string
@@ -2075,7 +2110,10 @@ components:
             binding: required
     NewHoneypot:
       type: object
-      description: The object to use when creating a new honeypot.
+      description: |
+        The object to use when creating a new honeypot.
+        Setting experimentID indicates that this honeypot was created as part of an experiment (and thus is likely dynamic).
+        When the experiment ends, the honeypot will be terminated.
       allOf:
         - $ref: '#/components/schemas/EditHoneypot'
         - type: object
@@ -2089,11 +2127,13 @@ components:
               description: Specifies whether this honeypot was created dynamically (e.g. a container created by the router) or statically (e.g. a Smart TV via the frontend)
               x-oapi-codegen-extra-tags:
                 binding: required
+            experimentID:
+              $ref: '#/components/schemas/ExperimentID'
     Honeypot:
       type: object
       description: |
         A honeypot (e.g. a single running Docker container).
-        When `endpointForwardingRule` is set, the honeypot is assigned to the corresponding endpoint.
+        `endpointForwardingRules` contains the endpoints the honeypot is assigned to.
       allOf:
         - type: object
           required:
@@ -2103,13 +2143,16 @@ components:
             - type
             - dynamic
             - router
+            - endpointForwardingRules
           properties:
             id:
               $ref: '#/components/schemas/HoneypotID'
             router:
               $ref: '#/components/schemas/Router'
-            endpointForwardingRule:
-              $ref: '#/components/schemas/EndpointForwardingRule'
+            endpointForwardingRules:
+              type: array
+              items:
+                $ref: '#/components/schemas/EndpointForwardingRule'
         - $ref: '#/components/schemas/NewHoneypot'
     UserID:
       type: string
@@ -2308,12 +2351,17 @@ components:
       description: The unique identifier of an endpoint
     ExperimentStatus:
       type: string
-      description: indicates whether an experiment has been planned, started, ended or failed
+      description: indicates whether an experiment has been registered, scheduled, started, ended or failed
       enum:
-        - planned
-        - started
-        - ended
-        - failed
+        - Registered
+        - EndpointsAssigned
+        - Scheduled
+        - HoneypotsStarting
+        - Running
+        - EndpointsUnassigned
+        - HoneypotsStopping
+        - Ended
+        - Failed
     ExperimentTimeframe:
       type: object
       description: Object to define the timeframe for an experiment
@@ -2375,6 +2423,7 @@ components:
           required:
             - id
             - status
+            - failureReason
             - team
           properties:
             id:

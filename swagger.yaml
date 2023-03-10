@@ -2414,6 +2414,15 @@ components:
       description: The object to use when creating a new Experiment
       allOf:
         - $ref: '#/components/schemas/SimpleExperiment'
+        - type: object
+          required:
+            - forwardings
+          properties:
+            forwardings:
+              type: array
+              description: Which ports on the endpoint to forward to which ports on the image
+              items:
+                $ref: '#/components/schemas/ExperimentForwardingRule'
     Experiment:
       type: object
       description: The object to return when creating or editing an experiment
@@ -2425,6 +2434,7 @@ components:
             - status
             - failureReason
             - team
+            - forwardings
           properties:
             id:
               $ref: '#/components/schemas/ExperimentID'
@@ -2432,8 +2442,30 @@ components:
               $ref: '#/components/schemas/ExperimentStatus'
             team:
                $ref: '#/components/schemas/Team'
+            forwardings:
+              type: array
+              description: Which ports on the endpoint to forward to which ports on the image
+              items:
+                $ref: '#/components/schemas/ExperimentForwardingRule'
             permissions:
                 $ref: '#/components/schemas/UserObjectPermissions'
+    ExperimentForwardingRule:
+      type: object
+      required:
+        - protocol
+        - endpointPort
+        - honeypotPort
+      properties:
+        protocol:
+          description: The protocol
+          type: string
+          enum:
+            - tcp
+            - udp
+        endpointPort:
+          type: integer
+        honeypotPort:
+          type: integer
     AllExperimentsResponse:
       type: object
       properties:

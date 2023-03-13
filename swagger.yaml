@@ -867,7 +867,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Honeypot'
+                allOf:
+                  - $ref: '#/components/schemas/Honeypot'
+                  - type: object
+                    properties:
+                      permissions:
+                        $ref: '#/components/schemas/UserObjectPermissions'
         '400':
           description: Invalid ID supplied
         '401':
@@ -1649,6 +1654,8 @@ components:
             $ref: '#/components/schemas/Honeypot'
         count:
           type: integer
+        permissions:
+          $ref: '#/components/schemas/UserObjectPermissions'
     UserTeamsResponse:
       type: object
       required:
@@ -1661,6 +1668,8 @@ components:
             $ref: '#/components/schemas/TeamUser'
         count:
           type: integer
+        permissions:
+          $ref: '#/components/schemas/UserObjectPermissions'
     EndpointRegistrationToken:
       type: string
       description: A single-use token that is handed to the endpoint for registration.
@@ -2059,6 +2068,8 @@ components:
                 $ref: '#/components/schemas/SimpleTeam'
             role:
               $ref: '#/components/schemas/UserTeamRole'
+            permissions:
+              $ref: '#/components/schemas/UserObjectPermissions'
     TeamTransfer:
       type: object
       description: Object to use when transferring a resource from one team to another.

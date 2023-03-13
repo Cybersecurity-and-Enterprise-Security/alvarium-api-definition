@@ -548,7 +548,7 @@ paths:
         Given a valid registration token, this registers a new router.
         The router receives a new permanent authentication token using which it can authenticate
         to the API and e.g. receive its configuration.
-      operationId: RegisterRouter
+      operationId: RegisterNewRouter
       security: []
       requestBody:
         required: true
@@ -850,7 +850,7 @@ paths:
         - router
       parameters:
         - $ref: '#/components/parameters/RouterIDParam'
-        - $ref: '#/components/parameters/ExperimentStatusParam'
+        - $ref: '#/components/parameters/ExperimentStatusTypeParam'
       security:
         - RouterAuthentication: []
         - UserAuthentication: []
@@ -1447,6 +1447,32 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+  '/experiments/{experimentId}/status':
+    post:
+      tags:
+        - experiment
+      summary: Change status of the experiment
+      operationId: ChangeExperimentStatus
+      description: |
+        Changes the status of the experiment and adds the status change to the status log.
+        This route is mostly used by the router to signal starting honeypots.
+      security:
+        - RouterAuthentication: []
+        - UserAuthentication: []
+      parameters:
+        - $ref: '#/components/parameters/ExperimentIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewExperimentStatus'
+      responses:
+        '204':
+          description: Status updated
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
 components:
   securitySchemes:
     EndpointAuthentication:
@@ -1520,12 +1546,12 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/ExperimentID'
-    ExperimentStatusParam:
+    ExperimentStatusTypeParam:
       name: status
       in: query
       description: Status of the experiments to filter for
       schema:
-        $ref: '#/components/schemas/ExperimentStatus'
+        $ref: '#/components/schemas/ExperimentStatusType'
   schemas:
     EndpointID:
       type: string
@@ -2349,16 +2375,17 @@ components:
       type: string
       format: uuid
       description: The unique identifier of an endpoint
-    ExperimentStatus:
+    ExperimentStatusType:
       type: string
-      description: indicates whether an experiment has been registered, scheduled, started, ended or failed
+      description: Indicates whether an experiment has been registered, scheduled, started, ended or failed
       enum:
         - Registered
         - EndpointsAssigned
-        - Scheduled
+        - ScheduledStart
         - HoneypotsStarting
         - Running
         - EndpointsUnassigned
+        - ScheduledStop
         - HoneypotsStopping
         - Ended
         - Failed
@@ -2466,6 +2493,28 @@ components:
           type: integer
         honeypotPort:
           type: integer
+    NewExperimentStatus:
+      type: object
+      required:
+        - status
+        - reason
+      properties:
+        status:
+          $ref: '#/components/schemas/ExperimentStatusType'
+        reason:
+          type: string
+          description: Reason for the status change
+    ExperimentStatus:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/NewExperimentStatus'
+        - type: object
+          required:
+            - createdAt
+          properties:
+            createdAt:
+              type: string
+              format: date-time
     AllExperimentsResponse:
       type: object
       properties:

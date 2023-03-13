@@ -410,32 +410,6 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-    post:
-      tags:
-        - endpointForwardingRule
-      parameters:
-        - $ref: '#/components/parameters/EndpointIDParam'
-      summary: Create New ForwardingRule
-      description: Adds a new forwarding rule to the specified endpoint
-      operationId: CreateEndpointForwardingRule
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewEndpointForwardingRule'
-      responses:
-        '201':
-          description: Forwarding Rule created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EndpointForwardingRule'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
   /endpointForwardingRules:
     get:
       tags:
@@ -470,53 +444,6 @@ paths:
                 $ref: '#/components/schemas/EndpointForwardingRule'
         '400':
           description: Invalid ID supplied
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        '405':
-          $ref: '#/components/responses/InvalidInputError'
-    patch:
-      tags:
-        - endpointForwardingRule
-      summary: Edit ForwardingRule By ID
-      description: Edits the endpoint forwarding rule with the given ID and the provided information.
-      operationId: EditEndpointForwardingRule
-      parameters:
-        - $ref: '#/components/parameters/EndpointForwardingRuleIDParam'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EditEndpointForwardingRule'
-      responses:
-        '200':
-          description: Update successful
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EndpointForwardingRule'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        '405':
-          $ref: '#/components/responses/InvalidInputError'
-    delete:
-      tags:
-        - endpointForwardingRule
-      summary: Delete ForwardingRule By ID
-      description: Delete the endpoint forwarding rule with the specified ID
-      operationId: DeleteEndpointForwardingRule
-      parameters:
-        - $ref: '#/components/parameters/EndpointForwardingRuleIDParam'
-      responses:
-        '204':
-          description: Forwarding Rule deleted successfully
-        '400':
-          $ref: '#/components/responses/BadRequestError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':

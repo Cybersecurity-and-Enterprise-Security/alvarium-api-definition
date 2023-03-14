@@ -1375,6 +1375,26 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
   '/experiments/{experimentId}/status':
+    get:
+      tags:
+        - experiment
+      summary: Get status log of the experiment
+      operationId: GetExperimentStatus
+      description: |
+        Get the status log of the experiment. This includes all status changes and their reasons.
+      parameters:
+        - $ref: '#/components/parameters/ExperimentIDParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperimentStatusLog'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
     post:
       tags:
         - experiment
@@ -2442,6 +2462,15 @@ components:
             createdAt:
               type: string
               format: date-time
+    ExperimentStatusLog:
+      type: object
+      required:
+        - statuses
+      properties:
+        statuses:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentStatus'
     AllExperimentsResponse:
       type: object
       properties:

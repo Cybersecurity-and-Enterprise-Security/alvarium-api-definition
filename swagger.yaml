@@ -1355,7 +1355,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Experiment'
         '400':
-          $ref: '#/components/responses/BadRequestError'  
+          $ref: '#/components/responses/BadRequestError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -1370,6 +1370,8 @@ paths:
       responses:
         '204':
           description: Ok
+        '400':
+          $ref: '#/components/responses/BadRequestError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -1416,6 +1418,44 @@ paths:
       responses:
         '204':
           description: Status updated
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/experiments/{experimentId}/start':
+    post:
+      tags:
+        - experiment
+      summary: Start an experiment now
+      operationId: StartExperiment
+      description: Start the experiment right now. This ignores the configured starting date and will schedule the start of the experiment.
+      parameters:
+        - $ref: '#/components/parameters/ExperimentIDParam'
+      responses:
+        '204':
+          description: Experiment started
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/experiments/{experimentId}/stop':
+    post:
+      tags:
+        - experiment
+      summary: Stop an experiment now
+      operationId: StopExperiment
+      description: Stop the experiment right now. This ignores the configured end date and will schedule the termination of the experiment.
+      parameters:
+        - $ref: '#/components/parameters/ExperimentIDParam'
+      responses:
+        '204':
+          description: Experiment started
+        '400':
+          $ref: '#/components/responses/BadRequestError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -2324,10 +2364,12 @@ components:
       enum:
         - Registered
         - EndpointsAssigned
+        - ForcedStart
         - ScheduledStart
         - HoneypotsStarting
         - Running
         - EndpointsUnassigned
+        - ForcedStop
         - ScheduledStop
         - HoneypotsStopping
         - Ended

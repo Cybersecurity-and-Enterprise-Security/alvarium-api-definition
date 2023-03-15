@@ -1580,11 +1580,7 @@ components:
           x-oapi-codegen-extra-tags:
             binding: required
         lastHeartbeat:
-          type: string
-          format: date-time
-          description: Time of the last received heartbeat.
-          x-oapi-codegen-extra-tags:
-            binding: required
+          $ref: '#/components/schemas/EndpointHeartbeat'
       required:
         - id
         - name

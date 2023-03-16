@@ -1110,7 +1110,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewTeam'
+              $ref: '#/components/schemas/NewSubteam'
       responses:
         '201':
           description: Team created successfully
@@ -1558,6 +1558,8 @@ components:
         count:
             type: integer
             description: The amount of configurations returned
+        permissions:
+          $ref: '#/components/schemas/UserObjectPermissions'
     AllTeamEndpointConfigurationsResponse:
       allOf:
         - $ref: '#/components/schemas/AllEndpointConfigurationsResponse'
@@ -2045,10 +2047,8 @@ components:
     NewSubteam:
       type: object
       description: Object to use when creating a team
-      required:
-        - name
       allOf:
-        - $ref: '#/components/schemas/EditTeam'
+        - $ref: '#/components/schemas/NewTeam'
     Team:
       type: object
       allOf:
@@ -2127,19 +2127,17 @@ components:
       properties:
         role:
           $ref: '#/components/schemas/UserTeamRole'
-    UserObjectPermission:
-      type: string
-      description: Permission what a user can do on an object.
-      enum:
-        - create
-        - read
-        - write
-        - admin
     UserObjectPermissions:
       type: array
       description: Permissions what a user can do on an object.
       items:
-        $ref: '#/components/schemas/UserObjectPermission'
+        type: string
+        description: Permission what a user can do on an object.
+        enum:
+          - create
+          - read
+          - write
+          - admin
   responses:
     BadRequestError:
       description: The supplied input is invalid

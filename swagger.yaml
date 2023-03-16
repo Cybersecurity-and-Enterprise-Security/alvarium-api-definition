@@ -67,7 +67,7 @@ paths:
     get:
       tags:
         - endpoint
-      summary: Get all endpoints
+      summary: Get All Endpoints
       description: Get all registered endpoints
       operationId: FindEndpoints
       responses:
@@ -81,7 +81,7 @@ paths:
     post:
       tags:
         - endpoint
-      summary: Register a new endpoint
+      summary: Register Endpoint
       description: |
         Given a valid registration token, this registers a new endpoint.
         The endpoint receives a new permanent authentication token using which it can authenticate
@@ -106,7 +106,7 @@ paths:
     get:
       tags:
         - endpoint
-      summary: Find endpoint by ID
+      summary: Get Endpoint By ID
       description: Returns a single endpoint
       operationId: FindEndpoint
       parameters:
@@ -125,7 +125,7 @@ paths:
     patch:
       tags:
         - endpoint
-      summary: Updates a endpoint
+      summary: Update Endpoint
       description: Update an endpoint to change its configuration like exposed ports
       operationId: UpdateEndpoint
       parameters:
@@ -143,7 +143,7 @@ paths:
     delete:
       tags:
         - endpoint
-      summary: Deletes an endpoint
+      summary: Delete Endpoint
       description: Delete an endpoint
       operationId: DeleteEndpoint
       parameters:
@@ -158,7 +158,7 @@ paths:
       tags:
         - endpoint
         - team
-      summary: Transfer endpoint to a new team
+      summary: Transfer Endpoint To Team
       description: Transfers the ownership of the endpoint to a different team.
       operationId: TransferEndpoint
       parameters:
@@ -170,7 +170,7 @@ paths:
               $ref: '#/components/schemas/EndpointTransfer'
       responses:
         '204':
-          description: Configuration transferred successfully
+          description: Endpoint transferred successfully
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -181,7 +181,7 @@ paths:
     get:
       tags:
         - endpoint
-      summary: Get the configuration of an endpoint
+      summary: Get Configuration Of Endpoint
       description: |
         Returns the configuration of an endpoint. This includes which traffic to forward and
         where to forward the traffic to.
@@ -204,7 +204,7 @@ paths:
     post:
       tags:
         - endpoint
-      summary: Start an endpoint
+      summary: Start Endpoint
       description: |
         Starts an existing endpoint. This should be the first API call that an endpoint makes when
         starting its operation. It will tell the API where the endpoint is located (e.g. public IP).
@@ -224,7 +224,7 @@ paths:
     get:
       tags:
         - endpoint
-      summary: Get logs of an endpoint
+      summary: Get Logs Of Endpoint
       description: Returns all the logs that an endpoint generated.
       operationId: GetEndpointLogs
       parameters:
@@ -239,7 +239,7 @@ paths:
     post:
       tags:
         - endpoint
-      summary: Add a new log entry for an endpoint
+      summary: Add Logs To Endpoint
       description: Adds a new log entry for an endpoint. This can only be done by the endpoint itself.
       operationId: AddEndpointLog
       security:
@@ -260,7 +260,7 @@ paths:
     post:
       tags:
         - endpoint
-      summary: Report statistics of an endpoint
+      summary: Add Statistics Of Endpoint
       description: Used by the endpoint to regularly contact the beekeeper to inform it about liveliness status and other stats.
       operationId: AddEndpointStats
       security:
@@ -281,7 +281,7 @@ paths:
     get:
       tags:
         - endpointConfiguration
-      summary: Get all available endpoint configurations
+      summary: Get All EndpointConfigurations
       description: Returns all available endpoint configurations. This is useful for the frontend to display all available endpoint configurations to the user which can then select one of them.
       operationId: FindAllEndpointConfigurations
       responses:
@@ -299,7 +299,7 @@ paths:
     get:
       tags:
         - endpointConfiguration
-      summary: Get a specific endpoint configuration
+      summary: Get EndpointConfiguration By ID
       description: Returns a specific endpoint configuration.
       operationId: FindEndpointConfiguration
       parameters:
@@ -320,7 +320,7 @@ paths:
     patch:
       tags:
         - endpointConfiguration
-      summary: Modify an existing endpoint configuration
+      summary: Edit EndpointConfiguration
       description: Modifies an existing endpoint configuration. As a side effect, modifying this configuration will modify the configuration of all endpoints connected with this specific configuration.
       operationId: EditEndpointConfiguration
       parameters:
@@ -348,7 +348,7 @@ paths:
     delete:
       tags:
         - endpointConfiguration
-      summary: Delete an endpoint configuration
+      summary: Delete EndpointConfiguration
       description: Deletes an existing endpoint configuration. If an endpoint is assigned to this configuration, the configuration cannot be deleted.
       operationId: DeleteEndpointConfiguration
       parameters:
@@ -367,7 +367,7 @@ paths:
       tags:
         - endpointConfiguration
         - team
-      summary: Transfer endpoint configuration to a new team
+      summary: Transfer EndpointConfiguration
       description: Transfers the ownership of the endpoint to a different team.
       operationId: TransferEndpointConfiguration
       parameters:
@@ -392,7 +392,7 @@ paths:
         - endpointForwardingRule
       parameters:
         - $ref: '#/components/parameters/EndpointIDParam'
-      summary: Get forwarding rules for a specific endpoint
+      summary: Get ForwardingRules Of Endpoint
       description: Get forwarding rules for the specified endpoint. These are informations for the endpoint regarding which incoming packets at a given port should be forwarded to which router.
       operationId: FindAllForwardingRulesByEndpoint
       responses:
@@ -413,7 +413,7 @@ paths:
         - endpointForwardingRule
       parameters:
         - $ref: '#/components/parameters/EndpointIDParam'
-      summary: Add a new endpoint forwarding rule
+      summary: Create New ForwardingRule
       description: Adds a new forwarding rule to the specified endpoint
       operationId: CreateEndpointForwardingRule
       requestBody:
@@ -438,7 +438,7 @@ paths:
     get:
       tags:
         - endpointForwardingRule
-      summary: Get all forwarding rules
+      summary: Get All ForwardingRules
       description: Get all created forwarding rules.
       operationId: FindAllEndpointForwardingRules
       responses:
@@ -454,7 +454,7 @@ paths:
     get:
       tags:
         - endpointForwardingRule
-      summary: Get a specific forwarding rule.
+      summary: Get ForwardingRule By ID
       description: Get a specific forwarding rule of an endpoint as identified by its id.
       operationId: FindEndpointForwardingRuleByID
       parameters:
@@ -477,7 +477,7 @@ paths:
     patch:
       tags:
         - endpointForwardingRule
-      summary: Edit forwarding rule by ID
+      summary: Edit ForwardingRule By ID
       description: Edits the endpoint forwarding rule with the given ID and the provided information.
       operationId: EditEndpointForwardingRule
       parameters:
@@ -505,7 +505,7 @@ paths:
     delete:
       tags:
         - endpointForwardingRule
-      summary: Deletes an endpoint forwarding rule by ID
+      summary: Delete ForwardingRule By ID
       description: Delete the endpoint forwarding rule with the specified ID
       operationId: DeleteEndpointForwardingRule
       parameters:
@@ -525,7 +525,7 @@ paths:
     get:
       tags:
         - router
-      summary: Get routers
+      summary: Get All Routers
       description: Returns all routers which are registered at the backend
       operationId: GetRouters
       responses:
@@ -541,7 +541,7 @@ paths:
     post:
       tags:
         - router
-      summary: Register new router
+      summary: Register Router
       description: |
         Given a valid registration token, this registers a new router.
         The router receives a new permanent authentication token using which it can authenticate
@@ -567,7 +567,7 @@ paths:
     get:
       tags:
         - router
-      summary: Get router by ID
+      summary: Get Router By ID
       description: Returns a single router
       operationId: GetRouterById
       parameters:
@@ -590,7 +590,7 @@ paths:
     patch:
       tags:
         - router
-      summary: Update router by ID
+      summary: Edit Router By ID
       description: Updates the router with the given ID with the provided information to change its configuration.
       operationId: UpdateRouter
       parameters:
@@ -615,7 +615,7 @@ paths:
     delete:
       tags:
         - router
-      summary: Deletes router by ID
+      summary: Delete Router By ID
       description: Delete the router with the specified ID from the backend's database
       operationId: DeleteRouter
       parameters:
@@ -636,7 +636,7 @@ paths:
       tags:
         - router
         - team
-      summary: Transfer router to a new team
+      summary: Transfer Router
       description: Transfers the ownership of the router to a different team.
       operationId: TransferRouter
       parameters:
@@ -657,7 +657,7 @@ paths:
           $ref: '#/components/responses/NotFoundError'
   '/routers/{routerId}/startup':
     post:
-      summary: Router startup API-Endpoint
+      summary: Start Router
       description: Starts an existing router. This is the first API call of a previously registered router when starting its operation. It will tell the API where the route is located (e.g. public IP).
       tags:
         - router
@@ -677,7 +677,7 @@ paths:
       operationId: postRouterStartupStatusById
   '/routers/{routerId}/config':
     post:
-      summary: Get router config
+      summary: Get Configuration Of Router 
       description: Returns the configuartion of the router with the specified ID.
       tags:
         - router
@@ -702,7 +702,7 @@ paths:
       operationId: 'getRouterConfigById:'
   '/routers/{routerId}/logs':
     get:
-      summary: Get logs of a router
+      summary: Get Logs Of Router
       description: Returns all logs that a router generated.
       tags:
         - router
@@ -723,7 +723,7 @@ paths:
           $ref: '#/components/responses/NotFoundError'
       operationId: getRouterLogsById
     post:
-      summary: Add new logline
+      summary: Add Logs To Router
       description: API-Endpoint to post to when a router shares logs
       operationId: postRouterLogsById
       tags:
@@ -748,7 +748,7 @@ paths:
           $ref: '#/components/responses/NotFoundError'
   '/routers/{routerId}/metrics':
     get:
-      summary: Get logs of a router
+      summary: Get Logs Of Router
       description: Returns all logs that a router generated.
       tags:
         - router
@@ -769,7 +769,7 @@ paths:
           $ref: '#/components/responses/NotFoundError'
       operationId: getRouterMetricsById
     post:
-      summary: Router metrics API-Endpoint
+      summary: Add Metrics Of Router
       description: API-Endpoint to post to when a router shares metrics
       tags:
         - router
@@ -798,7 +798,7 @@ paths:
         - honeypot
       parameters:
         - $ref: '#/components/parameters/RouterIDParam'
-      summary: Get all honeypots of a specific router
+      summary: Get Honeypots Of Router
       description: Get all honeypots attached to the router. These are honeypots that the router can talk to and possibly also manages (e.g. containers).
       operationId: FindAllHoneypotsByRouter
       responses:
@@ -815,7 +815,7 @@ paths:
         - honeypot
       parameters:
         - $ref: '#/components/parameters/RouterIDParam'
-      summary: Add a new honeypot
+      summary: Add New Honeypot Of Router
       description: Adds a new honeypot to the specified router
       operationId: CreateHoneypot
       requestBody:
@@ -840,7 +840,7 @@ paths:
     get:
       tags:
         - honeypot
-      summary: Get all honeypots
+      summary: Get All Honeypots
       description: Get all registered honeypots. This might be interesting for administrators to monitor all available honeypots.
       operationId: FindAllHoneypots
       responses:
@@ -856,7 +856,7 @@ paths:
     get:
       tags:
         - honeypot
-      summary: Get a specific honeypot
+      summary: Get Honeypot By ID
       description: Get a specific honeypot of a router as identified by its id.
       operationId: FindHoneypotById
       parameters:
@@ -884,7 +884,7 @@ paths:
     patch:
       tags:
         - honeypot
-      summary: Edit honeypot by ID
+      summary: Edit Honeypot By ID
       description: Edits the honeypot with the given ID and the provided information.
       operationId: EditHoneypot
       parameters:
@@ -908,7 +908,7 @@ paths:
     delete:
       tags:
         - honeypot
-      summary: Deletes a honeypot by ID
+      summary: Delete Honeypot By ID
       description: Delete the honeypot with the specified ID
       operationId: DeleteHoneypot
       parameters:
@@ -928,7 +928,7 @@ paths:
     get:
       tags:
         - user
-      summary: Get all users
+      summary: Get All Users
       description: Gets all registered users to display them for the administrator in the GUI
       operationId: ShowAllRegisteredUsers
       responses:
@@ -942,7 +942,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
   '/users/{userId}':
     get:
-      summary: Get user information by ID
+      summary: Get User By ID
       description: Returns information about a specific user
       operationId: ShowUserInformationById
       tags:
@@ -959,7 +959,7 @@ paths:
     patch:
       tags:
         - user
-      summary: Update user information
+      summary: Edit User By ID
       description: Update information of a specific user
       operationId: UpdateUser
       parameters:
@@ -985,7 +985,7 @@ paths:
     delete:
       tags:
         - user
-      summary: Deletes a user
+      summary: Delete User By ID
       description: Delete a user
       operationId: DeleteUser
       parameters:
@@ -1006,7 +1006,7 @@ paths:
     get:
       tags:
         - team
-      summary: Get all teams
+      summary: Get All Teams
       description: Gets all teams
       operationId: FindAllTeams
       responses:
@@ -1021,7 +1021,7 @@ paths:
     post:
       tags:
         - team
-      summary: Create new root team
+      summary: Create Root Team 
       description: Creates a new team. The authenticated user will be the owner.
       operationId: CreateTeam
       requestBody:
@@ -1040,7 +1040,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
   '/teams/{teamId}':
     get:
-      summary: Get team information by ID
+      summary: Get Team By ID
       description: Returns information about a specific team
       operationId: FindTeamById
       tags:
@@ -1061,7 +1061,7 @@ paths:
     patch:
       tags:
         - team
-      summary: Update team information
+      summary: Edit Team By ID
       description: Update information of a specific team
       operationId: EditTeam
       parameters:
@@ -1085,7 +1085,7 @@ paths:
     delete:
       tags:
         - team
-      summary: Deletes a team
+      summary: Delete Team By ID
       description: Delete a team
       operationId: DeleteTeam
       parameters:
@@ -1101,7 +1101,7 @@ paths:
     post:
       tags:
         - team
-      summary: Create new sub team
+      summary: Create Sub Team
       description: Creates a new sub-team. The authenticated user will be the owner.
       operationId: CreateSubTeam
       parameters:
@@ -1124,7 +1124,7 @@ paths:
           $ref: '#/components/responses/NotFoundError'
   '/teams/{teamId}/users':
     get:
-      summary: Get users in the team
+      summary: Get Users By Team
       description: Returns all users that are in the team
       operationId: FindUsersByTeamId
       tags:
@@ -1144,7 +1144,7 @@ paths:
           $ref: '#/components/responses/NotFoundError'
   '/teams/{teamId}/users/{userId}':
     put:
-      summary: Add user to a team
+      summary: Add User To Team
       operationId: AddUserToTeam
       tags:
         - team
@@ -1164,7 +1164,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
     delete:
-      summary: Remove user from a team
+      summary: Remove User From Team
       operationId: RemoveUserFromTeam
       tags:
         - team
@@ -1182,7 +1182,7 @@ paths:
     get:
       tags:
         - endpoint
-      summary: Get all endpoints of a team
+      summary: Get Endpoints By Team
       description: Returns all endpoints of that team. Does not include subteams.
       operationId: FindEndpointsByTeam
       parameters:
@@ -1199,7 +1199,7 @@ paths:
     post:
       tags:
         - endpoint
-      summary: Create a new endpoint
+      summary: Add Endpoint To Team
       description: Create a new endpoint which can then register itself with the server. The endpoint is associated to the team.
       operationId: CreateEndpoint
       parameters:
@@ -1222,7 +1222,7 @@ paths:
     get:
       tags:
         - endpointConfiguration
-      summary: Get all available endpoint configurations of the team
+      summary: Get EndpointConfigurations By Team
       description: Returns all available endpoint configurations. This is useful for the frontend to display all available endpoint configurations to the user which can then select one of them.
       operationId: FindAllEndpointConfigurationsByTeam
       parameters:
@@ -1243,7 +1243,7 @@ paths:
     post:
       tags:
         - endpointConfiguration
-      summary: Create a new endpoint configuration in the team
+      summary: Add EndpointConfiguration To Team
       description: Create a new endpoint configuration which can then be used for multiple endpoints. An endpoint configuration must exist before creating an endpoint, as an endpoint will be assigned a configuration when it is created.
       operationId: CreateEndpointConfiguration
       parameters:
@@ -1272,7 +1272,7 @@ paths:
     get:
       tags:
         - router
-      summary: Get team routers
+      summary: Get Routers By Team
       description: Returns all routers of the team
       operationId: GetRoutersByTeam
       parameters:
@@ -1291,7 +1291,7 @@ paths:
     post:
       tags:
         - router
-      summary: Create new router in the team
+      summary: Add Router To Team
       description: Create a new router in the team which can then register itself with the server
       operationId: CreateRouter
       parameters:

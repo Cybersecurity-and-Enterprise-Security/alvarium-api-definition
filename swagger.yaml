@@ -86,7 +86,7 @@ paths:
         Given a valid registration token, this registers a new endpoint.
         The endpoint receives a new permanent authentication token using which it can authenticate
         to the API and e.g. receive its configuration.
-      operationId: RegisterEndpoint
+      operationId: RegisterNewEndpoint
       requestBody:
         required: true
         content:

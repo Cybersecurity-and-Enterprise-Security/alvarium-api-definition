@@ -44,6 +44,8 @@ tags:
     description: Teams are a collection of users and group ressources in a hierarchy
   - name: experiment
     description: Experiments can be conducted within a team.
+  - name: admin
+    description: These are routes that only the administrator should be able to request
 security:
   - UserAuthentication: []
 paths:
@@ -65,20 +67,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Health'
-  /endpoints:
-    get:
-      tags:
-        - endpoint
-      summary: Get All Endpoints
-      description: Get all registered endpoints
-      operationId: FindEndpoints
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AllEndpointsResponse'
   /endpoints/register:
     post:
       tags:
@@ -301,24 +289,6 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-  /endpoints/configurations:
-    get:
-      tags:
-        - endpointConfiguration
-      summary: Get All EndpointConfigurations
-      description: Returns all available endpoint configurations. This is useful for the frontend to display all available endpoint configurations to the user which can then select one of them.
-      operationId: FindAllEndpointConfigurations
-      responses:
-        '200':
-          description: All endpoint configurations
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AllEndpointConfigurationsResponse'
-        '400':
-          $ref: '#/components/responses/UnauthorizedError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
   '/endpoints/configurations/{configurationId}':
     get:
       tags:
@@ -432,22 +402,32 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-  /endpointForwardingRules:
-    get:
+    post:
       tags:
         - endpointForwardingRule
-      summary: Get All ForwardingRules
-      description: Get all created forwarding rules.
-      operationId: FindAllEndpointForwardingRules
+      parameters:
+        - $ref: '#/components/parameters/EndpointIDParam'
+      summary: Create New ForwardingRule
+      description: Adds a new forwarding rule to the specified endpoint
+      operationId: CreateEndpointForwardingRule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewEndpointForwardingRule'
       responses:
-        '200':
-          description: Ok
+        '201':
+          description: Forwarding Rule created
           content:
             application/json:
               schema:
-               $ref: '#/components/schemas/AllEndpointForwardingRulesResponse'
+                $ref: '#/components/schemas/EndpointForwardingRule'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
   /endpointForwardingRules/{forwardingRuleId}:
     get:
       tags:
@@ -472,22 +452,53 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '405':
           $ref: '#/components/responses/InvalidInputError'
-  /routers:
-    get:
+    patch:
       tags:
-        - router
-      summary: Get All Routers
-      description: Returns all routers which are registered at the backend
-      operationId: GetRouters
+        - endpointForwardingRule
+      summary: Edit ForwardingRule By ID
+      description: Edits the endpoint forwarding rule with the given ID and the provided information.
+      operationId: EditEndpointForwardingRule
+      parameters:
+        - $ref: '#/components/parameters/EndpointForwardingRuleIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditEndpointForwardingRule'
       responses:
         '200':
-          description: Ok
+          description: Update successful
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AllRoutersResponse'
+                $ref: '#/components/schemas/EndpointForwardingRule'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '405':
+          $ref: '#/components/responses/InvalidInputError'
+    delete:
+      tags:
+        - endpointForwardingRule
+      summary: Delete ForwardingRule By ID
+      description: Delete the endpoint forwarding rule with the specified ID
+      operationId: DeleteEndpointForwardingRule
+      parameters:
+        - $ref: '#/components/parameters/EndpointForwardingRuleIDParam'
+      responses:
+        '204':
+          description: Forwarding Rule deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '405':
+          $ref: '#/components/responses/InvalidInputError'
   /routers/register:
     post:
       tags:
@@ -816,22 +827,6 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-  /honeypots:
-    get:
-      tags:
-        - honeypot
-      summary: Get All Honeypots
-      description: Get all registered honeypots. This might be interesting for administrators to monitor all available honeypots.
-      operationId: FindAllHoneypots
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AllHoneypotsResponse'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
   /honeypots/{honeypotId}:
     get:
       tags:
@@ -904,84 +899,6 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '405':
           $ref: '#/components/responses/InvalidInputError'
-  /users:
-    get:
-      tags:
-        - user
-      summary: Get All Users
-      description: Gets all registered users to display them for the administrator in the GUI
-      operationId: ShowAllRegisteredUsers
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AllUsersResponse'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-  '/users/{userId}':
-    get:
-      summary: Get User By ID
-      description: Returns information about a specific user
-      operationId: ShowUserInformationById
-      tags:
-        - user
-      parameters:
-        - $ref: '#/components/parameters/UserIDParam'
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GlobalUser'
-    patch:
-      tags:
-        - user
-      summary: Edit User By ID
-      description: Update information of a specific user
-      operationId: UpdateUser
-      parameters:
-        - $ref: '#/components/parameters/UserIDParam'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EditUser'
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GlobalUser'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        '405':
-          $ref: '#/components/responses/InvalidInputError'
-    delete:
-      tags:
-        - user
-      summary: Delete User By ID
-      description: Delete a user
-      operationId: DeleteUser
-      parameters:
-        - name: userId
-          in: path
-          description: user id to delete
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: Successful
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
   /teams:
     get:
       tags:
@@ -1482,6 +1399,198 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+  '/admin/endpoints':
+    get:
+      tags:
+        - admin
+      summary: Get All Endpoints
+      description: Get all registered endpoints
+      operationId: FindEndpoints
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllEndpointsResponse'
+  '/admin/routers':
+    get:
+      tags:
+        - admin
+      summary: Get All Routers
+      description: Returns all routers which are registered at the backend
+      operationId: GetRouters
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllRoutersResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  '/admin/honeypots':
+    get:
+      tags:
+        - admin
+      summary: Get All Honeypots
+      description: Get all registered honeypots. This might be interesting for administrators to monitor all available honeypots.
+      operationId: FindAllHoneypots
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllHoneypotsResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  '/admin/users':
+    get:
+      tags:
+        - admin
+      summary: Get All Users With Role
+      description: Gets all registered users to display them for the administrator in the GUI
+      operationId: GetAllUserSWithRole
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllUsersAdminResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  '/admin/users/{userId}':
+    get:
+      summary: Get User By ID
+      description: Returns information about a specific user
+      operationId: ShowUserInformationById
+      tags:
+        - admin
+      parameters:
+        - $ref: '#/components/parameters/UserIDParam'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalUser'
+    patch:
+      tags:
+        - admin
+      summary: Edit User By ID
+      description: Update information of a specific user
+      operationId: UpdateUser
+      parameters:
+        - $ref: '#/components/parameters/UserIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditUser'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalUser'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '405':
+          $ref: '#/components/responses/InvalidInputError'
+    delete:
+      tags:
+        - admin
+      summary: Delete User By ID
+      description: Delete a user
+      operationId: DeleteUser
+      parameters:
+        - name: userId
+          in: path
+          description: user id to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Successful
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/admin/endpointForwardingRules':
+    get:
+      tags:
+        - admin
+      summary: Get All ForwardingRules
+      description: Get all created forwarding rules.
+      operationId: FindAllEndpointForwardingRules
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/AllEndpointForwardingRulesResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  '/admin/endpoints/configurations':
+    get:
+      tags:
+        - admin
+      summary: Get All EndpointConfigurations
+      description: Returns all available endpoint configurations. This is useful for the frontend to display all available endpoint configurations to the user which can then select one of them.
+      operationId: FindAllEndpointConfigurations
+      responses:
+        '200':
+          description: All endpoint configurations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllEndpointConfigurationsResponse'
+        '400':
+          $ref: '#/components/responses/UnauthorizedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'  
+  '/profile':
+    get:
+      tags:
+        - user 
+      summary: Get User profile
+      description: This Returns the profile information of the user which is currently logged in
+      operationId: GetUserProfile
+      responses:
+        '200':
+          description: All endpoint configurations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalUser'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError' 
+  '/users':
+    get:
+      tags:
+        - user 
+      summary: Get All Users
+      description: This returns all users without the role to be able to invite them into a team
+      operationId: GetAllUsers
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllUsersResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'  
 components:
   securitySchemes:
     EndpointAuthentication:
@@ -1861,8 +1970,19 @@ components:
         users:
           type: array
           items:
-          # Change here for GlobalUser once roles are merged
             $ref: '#/components/schemas/User'
+        count:
+          type: integer
+    AllUsersAdminResponse:
+      type: object
+      required:
+        - users
+        - count
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/GlobalUser'
         count:
           type: integer
     AllRoutersResponse:
@@ -2336,10 +2456,11 @@ components:
       required:
         - id
         - name
-        - role
       allOf:
         - $ref: '#/components/schemas/User'
         - type: object
+          required:
+            - role
           properties:
             role:
               $ref: '#/components/schemas/GlobalUserRole'
@@ -2457,7 +2578,7 @@ components:
       description: Role to assign to the user in the team.
       enum:
         - guest
-        - researcher
+        - researcher  
         - maintainer
         - owner
       x-oapi-codegen-extra-tags:

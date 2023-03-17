@@ -1319,7 +1319,7 @@ paths:
   '/teams/{teamId}/experiments':
     get:
       tags:
-        - experiment
+        - team
       summary: Get Experiments By Team
       operationId: GetExperimentsByTeamId
       parameters:
@@ -1337,7 +1337,7 @@ paths:
           $ref: '#/components/responses/NotFoundError'
     post:
       tags:
-        - experiment
+        - team
       summary: Add Experiment To Team
       operationId: CreateExperimentByTeamId
       parameters:
@@ -1492,6 +1492,8 @@ components:
       type: string
       format: uuid
       description: The unique identifier of an endpoint configuration
+      x-oapi-codegen-extra-tags:
+        binding: required
     EndpointForwardingRuleID:
       type: string
       format: uuid
@@ -1503,6 +1505,8 @@ components:
         name:
           type: string
           example: AWS Endpoint
+          x-oapi-codegen-extra-tags:
+            binding: required
         description:
           type: string
           example: Endpoint hosted on AWS
@@ -1533,9 +1537,13 @@ components:
         isRegistered:
           type: boolean
           description: Shows whether the endpoint has been registered already.
+          x-oapi-codegen-extra-tags:
+            binding: required
         name:
           type: string
           example: AWS Endpoint
+          x-oapi-codegen-extra-tags:
+            binding: required
         description:
           type: string
           example: Endpoint hosted on AWS
@@ -1544,13 +1552,19 @@ components:
           type: string
           format: ip
           example: 133.7.42.42
+          x-oapi-codegen-extra-tags:
+            binding: required
         alive:
           type: boolean
           description: Whether the endpoint is currently alive, as measured by its hearbeat.
+          x-oapi-codegen-extra-tags:
+            binding: required
         lastHeartbeat:
           type: string
           format: date-time
           description: Time of the last received heartbeat.
+          x-oapi-codegen-extra-tags:
+            binding: required
       required:
         - id
         - name
@@ -1777,6 +1791,8 @@ components:
     EndpointRegistrationToken:
       type: string
       description: A single-use token that is handed to the endpoint for registration.
+      x-oapi-codegen-extra-tags:
+        binding: required
     EditEndpointConfiguration:
       type: object
       description: The object to use when modifying an EndpointConfiguration object
@@ -1807,6 +1823,10 @@ components:
           properties:
             id:
               $ref: '#/components/schemas/EndpointConfigurationID'
+            name:
+              type: string
+              x-oapi-codegen-extra-tags:
+                binding: required
             team:
               $ref: '#/components/schemas/SimpleTeam'
             permissions:
@@ -1825,10 +1845,14 @@ components:
           enum:
             - tcp
             - udp
+          x-oapi-codegen-extra-tags:
+            binding: required
         port:
           type: integer
           description: The port to deny traffic to.
           example: 80
+          x-oapi-codegen-extra-tags:
+            binding: required
     EndpointIngressDenyRule:
       type: object
       description: A rule that specifies what ingress traffic to **NOT** forward to the beehive.
@@ -1859,6 +1883,8 @@ components:
         honeypotType:
           type: string
           description: Type of the honeypot the traffic should be routed to
+          x-oapi-codegen-extra-tags:
+            binding: required
     NewEndpointForwardingRule:
       type: object
       description: The object to use when creating a new endpoint forwarding rule.
@@ -1916,6 +1942,8 @@ components:
         name:
           type: string
           example: Router H-1
+          x-oapi-codegen-extra-tags:
+            binding: required
         description:
           type: string
           example: The router hosted on the server in H-1.
@@ -1943,6 +1971,8 @@ components:
             isRegistered:
               type: boolean
               description: Shows whether the endpoint has been registered already.
+              x-oapi-codegen-extra-tags:
+                binding: required
             team:
               $ref: '#/components/schemas/SimpleTeam'
             permissions:
@@ -1955,6 +1985,8 @@ components:
     RouterRegistrationToken:
       type: string
       description: A single-use token that is handed to the router for registration.
+      x-oapi-codegen-extra-tags:
+        binding: required
     RouterConfiguration:
       type: object
       description: The configuration of a router.
@@ -2021,10 +2053,14 @@ components:
           format: ip
           description: The ip under which the beehive can reach the honeypot.
           example: 10.11.12.13
+          x-oapi-codegen-extra-tags:
+            binding: required
         type:
           type: string
           description: The type identifying the honeypot. Could be a Docker image (e.g. `nginx:latest`) or something describing a hardware appliance (e.g. `Samsung Smart TV`).
           example: nginx:latest
+          x-oapi-codegen-extra-tags:
+            binding: required
     NewHoneypot:
       type: object
       description: The object to use when creating a new honeypot.
@@ -2039,6 +2075,8 @@ components:
             dynamic:
               type: boolean
               description: Specifies whether this honeypot was created dynamically (e.g. a container created by the router) or statically (e.g. a Smart TV via the frontend)
+              x-oapi-codegen-extra-tags:
+                binding: required
     Honeypot:
       type: object
       description: |
@@ -2122,6 +2160,8 @@ components:
       type: string
       format: uuid
       description: The unique identifier of a team
+      x-oapi-codegen-extra-tags:
+        binding: required
     EditTeam:
       type: object
       description: Object to use when editing a team
@@ -2130,6 +2170,8 @@ components:
           type: string
           description: The name of a team
           example: 'Alvarium'
+          x-oapi-codegen-extra-tags:
+            binding: required
     NewTeam:
       type: object
       description: Object to use when creating a team
@@ -2233,6 +2275,8 @@ components:
       properties:
         role:
           $ref: '#/components/schemas/UserTeamRole'
+          x-oapi-codegen-extra-tags:
+            binding: required
     UserObjectPermissions:
       type: array
       description: Permissions what a user can do on an object.
@@ -2267,10 +2311,14 @@ components:
           type: string
           format: date-time
           description: Start time of the experiment.
+          x-oapi-codegen-extra-tags:
+            binding: required
         endTimestamp:
           type: string
           format: date-time
           description: End time of the experiment.
+          x-oapi-codegen-extra-tags:
+            binding: required
     FilteredEndpointsCount:
       type: object
       description: returns the amount of endpoints which match the filter criteria
@@ -2298,10 +2346,16 @@ components:
       properties:
         name:
           type: string
+          x-oapi-codegen-extra-tags:
+            binding: required
         image:
           type: string
+          x-oapi-codegen-extra-tags:
+            binding: required
         amount:
           type: integer
+          x-oapi-codegen-extra-tags:
+            binding: required
         timeframe:
           $ref: '#/components/schemas/ExperimentTimeframe'
     EditExperiment:

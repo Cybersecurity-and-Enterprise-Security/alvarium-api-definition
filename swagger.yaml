@@ -2341,7 +2341,6 @@ components:
         - name
         - image
         - amount
-        - teamId
         - timeframe
       properties:
         name:
@@ -2361,13 +2360,8 @@ components:
     EditExperiment:
       type: object
       description: Object to use when editing an existing Experiment
-      required:
-        - teamId
       allOf:
         - $ref: '#/components/schemas/SimpleExperiment'
-      properties:
-        teamId:
-          $ref: '#/components/schemas/TeamID'
     NewExperiment:
       type: object
       description: The object to use when creating a new Experiment

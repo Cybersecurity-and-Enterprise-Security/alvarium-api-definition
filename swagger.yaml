@@ -708,52 +708,24 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-  '/routers/{routerId}/metrics':
-    get:
-      summary: Get Logs Of Router
-      description: Returns all logs that a router generated.
-      tags:
-        - router
-      parameters:
-        - $ref: '#/components/parameters/RouterIDParam'
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AllRouterMetricsResponse'
-        '400':
-          description: invalid ID supplied
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-      operationId: getRouterMetricsById
+  '/routers/{routerId}/statistics':
     post:
-      summary: Add Metrics Of Router
-      description: API-Endpoint to post to when a router shares metrics
       tags:
         - router
+      summary: Add Statistics Of Router
+      description: Used by the router to regularly contact the beekeeper to inform it about liveliness status and other stats.
+      operationId: AddRouterStats
       security:
         - RouterAuthentication: []
       parameters:
         - $ref: '#/components/parameters/RouterIDParam'
       responses:
-        '204':
-          description: metrics submitted successfully
-        '400':
-          description: invalid ID supplied
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
+        204:
+          description: Stats added successfully
+        404:
           $ref: '#/components/responses/NotFoundError'
-      operationId: postRouterMetricsById
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RouterMetrics'
+        429:
+           $ref: '#/components/responses/TooManyRequestsError'
   /routers/{routerId}/honeypots:
     get:
       tags:
@@ -2965,6 +2937,12 @@ components:
             $ref: '#/components/schemas/Error'
     InvalidInputError:
       description: Malformed request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    TooManyRequestsError:
+      description: Too many requests on this route
       content:
         application/json:
           schema:

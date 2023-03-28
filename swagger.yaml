@@ -2277,17 +2277,19 @@ components:
           $ref: '#/components/schemas/UserTeamRole'
           x-oapi-codegen-extra-tags:
             binding: required
+    UserObjectPermission:
+      type: string
+      description: Permission what a user can do on an object.
+      enum:
+        - create
+        - read
+        - write
+        - admin
     UserObjectPermissions:
       type: array
       description: Permissions what a user can do on an object.
       items:
-        type: string
-        description: Permission what a user can do on an object.
-        enum:
-          - create
-          - read
-          - write
-          - admin
+        $ref: '#/components/schemas/UserObjectPermission'
     ExperimentID:
       type: string
       format: uuid

@@ -1354,6 +1354,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Experiment'
+        '400':
+          $ref: '#/components/responses/BadRequestError'  
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
   '/experiments/{experimentId}':
     get:
       tags:
@@ -1392,6 +1398,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Experiment'
+        '400':
+          $ref: '#/components/responses/BadRequestError'  
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
     delete:
       tags:
         - experiment
@@ -2321,21 +2333,6 @@ components:
           description: End time of the experiment.
           x-oapi-codegen-extra-tags:
             binding: required
-    FilteredEndpointsCount:
-      type: object
-      description: returns the amount of endpoints which match the filter criteria
-      properties:
-        count:
-          type: integer
-    EndpointFilterParams:
-      type: object
-      properties:
-        type:
-          type: string
-        country:
-          type: string
-        nat:
-          type: string
     SimpleExperiment:
       type: object
       description: Object that contains properties which are used by any other experiment object

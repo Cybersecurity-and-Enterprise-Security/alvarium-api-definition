@@ -820,7 +820,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AllExperimentsResponse'
+                $ref: '#/components/schemas/AllRouterExperiments'
         '400':
           description: invalid ID supplied
         '401':
@@ -1399,6 +1399,69 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+  '/experiments/{experimentId}/trafficDumps':
+    get:
+      tags:
+        - experiment
+      summary: List available traffic dumps of an experiment
+      operationId: ListTrafficDumpForExperiment
+      description: Shows all available traffic dumps for an experiment. These can then be downloaded via the /download route.
+      parameters:
+        - $ref: '#/components/parameters/ExperimentIDParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllTrafficDumps'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      tags:
+        - experiment
+      summary: Add a traffic dump for an experiment
+      operationId: UploadTrafficDumpForExperiment
+      description: Upload a new traffic dump for an experiment. The dump will be stored and can be downloaded by researchers for further analysis.
+      security:
+        - RouterAuthentication: []
+      parameters:
+        - $ref: '#/components/parameters/ExperimentIDParam'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TrafficDumpUpload'
+      responses:
+        '204':
+          description: Dump uploaded successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/experiments/{experimentId}/trafficDumps/download':
+    get:
+      tags:
+        - experiment
+      summary: Download a specific or all traffic dumps for an experiment
+      operationId: DownloadTrafficDumpForExperiment
+      description: Downloads a specific (as specified by the `filename` parameter) or all traffic dumps (if filename is not specified) as a compressed archive.
+      parameters:
+        - $ref: '#/components/parameters/ExperimentIDParam'
+        - $ref: '#/components/parameters/TrafficDumpIDParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/octet-stream:
+              schema:
+                $ref: '#/components/schemas/TrafficDumpDownload'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
   '/admin/endpoints':
     get:
       tags:
@@ -1590,7 +1653,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/AllUsersResponse'
         '401':
-          $ref: '#/components/responses/UnauthorizedError'  
+          $ref: '#/components/responses/UnauthorizedError'
 components:
   securitySchemes:
     EndpointAuthentication:
@@ -1670,6 +1733,14 @@ components:
       description: Status of the experiments to filter for
       schema:
         $ref: '#/components/schemas/ExperimentStatusType'
+    TrafficDumpIDParam:
+      name: id
+      in: query
+      description: IDs of the dump files to download
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/TrafficDumpID'
   schemas:
     EndpointID:
       type: string
@@ -1689,6 +1760,10 @@ components:
       type: string
       format: uuid
       description: The unique identifier of an endpoint configuration
+    TrafficDumpID:
+      type: string
+      format: uuid
+      description: The unique identifier of a traffic dump
     BasicEndpoint:
       type: object
       description: An object describing the basic properties of an endpoint
@@ -2412,6 +2487,25 @@ components:
               items:
                 $ref: '#/components/schemas/EndpointForwardingRule'
         - $ref: '#/components/schemas/NewHoneypot'
+    RouterHoneypot:
+      type: object
+      description: Honeypot information for a Router.
+      required:
+        - id
+        - ip
+        - type
+      properties:
+        id:
+          $ref: '#/components/schemas/HoneypotID'
+        ip:
+          type: string
+          format: ip
+          description: The ip under which the beehive can reach the honeypot.
+          example: 10.11.12.13
+        type:
+          type: string
+          description: The type identifying the honeypot. Could be a Docker image (e.g. `nginx:latest`) or something describing a hardware appliance (e.g. `Samsung Smart TV`).
+          example: nginx:latest
     UserID:
       type: string
       format: uuid
@@ -2711,6 +2805,37 @@ components:
                 $ref: '#/components/schemas/ExperimentForwardingRule'
             permissions:
                 $ref: '#/components/schemas/UserObjectPermissions'
+    AllRouterExperiments:
+      type: object
+      required:
+        - experiments
+      properties:
+        experiments:
+          type: array
+          items:
+            $ref: '#/components/schemas/RouterExperiment'
+    RouterExperiment:
+      type: object
+      description: The experiment information to return to a router.
+      allOf:
+        - $ref: '#/components/schemas/SimpleExperiment'
+        - type: object
+          required:
+            - id
+            - honeypots
+            - forwardings
+          properties:
+            id:
+              $ref: '#/components/schemas/ExperimentID'
+            honeypots:
+              type: array
+              items:
+                $ref: '#/components/schemas/RouterHoneypot'
+            forwardings:
+              type: array
+              description: Which ports on the endpoint to forward to which ports on the image
+              items:
+                $ref: '#/components/schemas/ExperimentForwardingRule'
     ExperimentForwardingRule:
       type: object
       required:
@@ -2773,6 +2898,52 @@ components:
       required:
       - experiments
       - count
+    TrafficDump:
+      type: object
+      required:
+        - id
+        - timestamp
+        - filesize
+      properties:
+        id:
+          $ref: '#/components/schemas/TrafficDumpID'
+        timestamp:
+          type: string
+          format: timestamp
+          description: Start time of the capture file.
+        filesize:
+          type: integer
+          description: Size of the dump file in bytes
+    AllTrafficDumps:
+      type: object
+      required:
+        - dumps
+        - count
+      properties:
+        dumps:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrafficDump'
+        count:
+          type: integer
+    TrafficDumpDownload:
+      type: string
+      format: binary
+      description: Download of one or multiple traffic dumps as a compressed archive.
+    TrafficDumpUpload:
+      type: object
+      required:
+        - file
+        - timestamp
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Upload of an uncompressed traffic dump (raw pcap file).
+        timestamp:
+          type: string
+          format: timestamp
+          description: Start time of the capture file.
   responses:
     BadRequestError:
       description: The supplied input is invalid

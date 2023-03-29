@@ -275,9 +275,31 @@ paths:
             schema:
               $ref: '#/components/schemas/EndpointStats'
       responses:
-        204:
+        '204':
           description: Stats added successfully
-        404:
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /endpoints/{endpointId}/forwarding:
+    get:
+      tags:
+        - endpoint
+      summary: Get Forwarding Information For An Endpoint
+      description: Returns the forwarding information for an endpoint including information such as the forwarding rules and beehives to connect to.
+      operationId: GetEndpointForwardingInformation
+      security:
+        - EndpointAuthentication: []
+      parameters:
+        - $ref: '#/components/parameters/EndpointIDParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointForwardingInformation'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
           $ref: '#/components/responses/NotFoundError'
   /endpoints/configurations:
     get:
@@ -605,7 +627,7 @@ paths:
           $ref: '#/components/responses/NotFoundError'
       operationId: postRouterStartupStatusById
   '/routers/{routerId}/config':
-    post:
+    get:
       summary: Get Configuration Of Router 
       description: Returns the configuartion of the router with the specified ID.
       tags:
@@ -1647,12 +1669,76 @@ components:
               $ref: '#/components/schemas/SimpleTeam'
             permissions:
               $ref: '#/components/schemas/UserObjectPermissions'
+    EndpointForwarding:
+      type: object
+      description: Forwarding for an endpoint.
+      required:
+        - beehiveIP
+        - matcher
+      properties:
+        beehiveIP:
+          $ref: '#/components/schemas/WireGuardIP'
+        matcher:
+          $ref: '#/components/schemas/PacketMatcher'
+    EndpointForwardingInformation:
+      type: object
+      description: Forwarding information of an endpoint.
+      required:
+        - forwardings
+        - beehives
+        - defaultBeehive
+      properties:
+        forwardings:
+          type: array
+          items:
+            $ref: '#/components/schemas/EndpointForwarding'
+        beehives:
+          type: array
+          items:
+            $ref: '#/components/schemas/WireGuardEndpointPeer'
+        defaultBeehive:
+          $ref: '#/components/schemas/WireGuardIP'
     EndpointApiKey:
       type: string
       description: A permanent authentication token that the endpoint uses to authenticate against the API.
     RouterApiKey:
       type: string
       description: A permanent authentication token that the endpoint uses to authenticate against the API.
+    WireGuardPublicKey:
+      type: string
+      description: A WireGuard public key.
+      minLength: 45
+      maxLength: 45
+    WireGuardIP:
+      type: string
+      description: IP in the WireGuard VPN.
+      format: ipv4
+    WireGuardEndpoint:
+      type: string
+      description: The endpoint where WireGuard peers can connect to.
+      example: 141.89.221.192:8335
+    WireGuardPeer:
+      type: object
+      description: A peer in the WireGuard network.
+      required:
+        - ip
+        - publicKey
+      properties:
+        ip:
+          $ref: '#/components/schemas/WireGuardIP'
+        publicKey:
+          $ref: '#/components/schemas/WireGuardPublicKey'
+    WireGuardEndpointPeer:
+      type: object
+      description: A WireGuard peer with an endpoint to connect to.
+      allOf:
+        - $ref: '#/components/schemas/WireGuardPeer'
+        - type: object
+          required:
+            - endpoint
+          properties:
+            endpoint:
+              $ref: '#/components/schemas/WireGuardEndpoint'
     NewEndpointRequest:
       allOf:
         - $ref: '#/components/schemas/NewEndpoint'
@@ -1671,38 +1757,63 @@ components:
         - $ref: '#/components/schemas/EditEndpoint'
     RegisterEndpointRequest:
       type: object
+      required:
+        - registrationToken
+        - wireguardPublicKey
       properties:
         registrationToken:
           $ref: '#/components/schemas/EndpointRegistrationToken'
-      required:
-        - registrationToken
+        wireguardPublicKey:
+          $ref: '#/components/schemas/WireGuardPublicKey'
     RegisterRouterRequest:
       type: object
+      required:
+        - registrationToken
+        - wireguardPublicKey
+        - wireguardEndpoint
       properties:
         registrationToken:
           $ref: '#/components/schemas/RouterRegistrationToken'
-      required:
-        - registrationToken
+        wireguardPublicKey:
+          $ref: '#/components/schemas/WireGuardPublicKey'
+        wireguardEndpoint:
+          $ref: '#/components/schemas/WireGuardEndpoint'
     RegisterEndpointResponse:
       type: object
       required:
         - id
         - apiKey
+        - wireguardIP
+        - beehiveIPRange
       properties:
         id:
           $ref: '#/components/schemas/EndpointID'
         apiKey:
           $ref: '#/components/schemas/EndpointApiKey'
+        wireguardIP:
+          $ref: '#/components/schemas/WireGuardIP'
+        beehiveIPRange:
+          type: string
+          description: WireGuard IP range of the beehives
+          example: 10.0.0.0/16
     RegisterRouterResponse:
       type: object
       required:
         - id
         - apiKey
+        - wireguardIP
+        - beeIPRange
       properties:
         id:
           $ref: '#/components/schemas/RouterID'
         apiKey:
           $ref: '#/components/schemas/RouterApiKey'
+        wireguardIP:
+          $ref: '#/components/schemas/WireGuardIP'
+        beeIPRange:
+          type: string
+          description: WireGuard IP range of the bees
+          example: 10.64.0.0/16
     AllEndpointsResponse:
       type: object
       required:
@@ -2043,25 +2154,43 @@ components:
       description: A single-use token that is handed to the router for registration.
       x-oapi-codegen-extra-tags:
         binding: required
+    RouterForwardingRule:
+      type: object
+      description: Forwarding rule for a router.
+      required:
+        - beeIP
+        - honeypotIP
+        - endpointMatcher
+        - routerMatcher
+      properties:
+        beeIP:
+          $ref: '#/components/schemas/WireGuardIP'
+        honeypotIP:
+          description: IP of the honeypot to forward the traffic to.
+          type: string
+          format: ipv4
+        endpointMatcher:
+          $ref: '#/components/schemas/PacketMatcher'
+        routerMatcher:
+          $ref: '#/components/schemas/PacketMatcher'
     RouterConfiguration:
       type: object
       description: The configuration of a router.
       required:
         - router
         - forwardings
+        - bees
       properties:
         router:
           $ref: '#/components/schemas/Router'
         forwardings:
           type: array
           items:
-            description: A forwarding rule that dictates to which honeypot the traffic received from an endpoint should be routed to.
-            required:
-              - endpoint
-              - honeypot
-              - matcher
-            allOf:
-              - $ref: '#/components/schemas/EndpointForwardingRule'
+            $ref: '#/components/schemas/RouterForwardingRule'
+        bees:
+          type: array
+          items:
+            $ref: '#/components/schemas/WireGuardPeer'
     RouterLog:
       type: object
       description: A log entry of a router.

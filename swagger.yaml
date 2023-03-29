@@ -410,32 +410,6 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-    post:
-      tags:
-        - endpointForwardingRule
-      parameters:
-        - $ref: '#/components/parameters/EndpointIDParam'
-      summary: Create New ForwardingRule
-      description: Adds a new forwarding rule to the specified endpoint
-      operationId: CreateEndpointForwardingRule
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewEndpointForwardingRule'
-      responses:
-        '201':
-          description: Forwarding Rule created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EndpointForwardingRule'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
   /endpointForwardingRules:
     get:
       tags:
@@ -476,53 +450,6 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '405':
           $ref: '#/components/responses/InvalidInputError'
-    patch:
-      tags:
-        - endpointForwardingRule
-      summary: Edit ForwardingRule By ID
-      description: Edits the endpoint forwarding rule with the given ID and the provided information.
-      operationId: EditEndpointForwardingRule
-      parameters:
-        - $ref: '#/components/parameters/EndpointForwardingRuleIDParam'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EditEndpointForwardingRule'
-      responses:
-        '200':
-          description: Update successful
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EndpointForwardingRule'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        '405':
-          $ref: '#/components/responses/InvalidInputError'
-    delete:
-      tags:
-        - endpointForwardingRule
-      summary: Delete ForwardingRule By ID
-      description: Delete the endpoint forwarding rule with the specified ID
-      operationId: DeleteEndpointForwardingRule
-      parameters:
-        - $ref: '#/components/parameters/EndpointForwardingRuleIDParam'
-      responses:
-        '204':
-          description: Forwarding Rule deleted successfully
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        '405':
-          $ref: '#/components/responses/InvalidInputError'
   /routers:
     get:
       tags:
@@ -548,7 +475,7 @@ paths:
         Given a valid registration token, this registers a new router.
         The router receives a new permanent authentication token using which it can authenticate
         to the API and e.g. receive its configuration.
-      operationId: RegisterRouter
+      operationId: RegisterNewRouter
       security: []
       requestBody:
         required: true
@@ -820,6 +747,9 @@ paths:
       summary: Add New Honeypot Of Router
       description: Adds a new honeypot to the specified router
       operationId: CreateHoneypot
+      security:
+        - RouterAuthentication: []
+        - UserAuthentication: []
       requestBody:
         content:
           application/json:
@@ -834,6 +764,32 @@ paths:
                 $ref: '#/components/schemas/Honeypot'
         '400':
           $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/routers/{routerId}/experiments':
+    get:
+      summary: Get experiments assigned to the router
+      description: Returns all the experiments which are currently assigned to the router.
+      operationId: GetExperimentsByRouter
+      tags:
+        - router
+      parameters:
+        - $ref: '#/components/parameters/RouterIDParam'
+        - $ref: '#/components/parameters/ExperimentStatusTypeParam'
+      security:
+        - RouterAuthentication: []
+        - UserAuthentication: []
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllExperimentsResponse'
+        '400':
+          description: invalid ID supplied
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -1399,7 +1355,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Experiment'
         '400':
-          $ref: '#/components/responses/BadRequestError'  
+          $ref: '#/components/responses/BadRequestError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -1414,6 +1370,92 @@ paths:
       responses:
         '204':
           description: Ok
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/experiments/{experimentId}/status':
+    get:
+      tags:
+        - experiment
+      summary: Get status log of the experiment
+      operationId: GetExperimentStatus
+      description: |
+        Get the status log of the experiment. This includes all status changes and their reasons.
+      parameters:
+        - $ref: '#/components/parameters/ExperimentIDParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperimentStatusLog'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      tags:
+        - experiment
+      summary: Change status of the experiment
+      operationId: ChangeExperimentStatus
+      description: |
+        Changes the status of the experiment and adds the status change to the status log.
+        This route is mostly used by the router to signal starting honeypots.
+      security:
+        - RouterAuthentication: []
+        - UserAuthentication: []
+      parameters:
+        - $ref: '#/components/parameters/ExperimentIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewExperimentStatus'
+      responses:
+        '204':
+          description: Status updated
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/experiments/{experimentId}/start':
+    post:
+      tags:
+        - experiment
+      summary: Start an experiment now
+      operationId: StartExperiment
+      description: Start the experiment right now. This ignores the configured starting date and will schedule the start of the experiment.
+      parameters:
+        - $ref: '#/components/parameters/ExperimentIDParam'
+      responses:
+        '204':
+          description: Experiment started
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/experiments/{experimentId}/stop':
+    post:
+      tags:
+        - experiment
+      summary: Stop an experiment now
+      operationId: StopExperiment
+      description: Stop the experiment right now. This ignores the configured end date and will schedule the termination of the experiment.
+      parameters:
+        - $ref: '#/components/parameters/ExperimentIDParam'
+      responses:
+        '204':
+          description: Experiment started
+        '400':
+          $ref: '#/components/responses/BadRequestError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -1491,6 +1533,12 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/ExperimentID'
+    ExperimentStatusTypeParam:
+      name: status
+      in: query
+      description: Status of the experiments to filter for
+      schema:
+        $ref: '#/components/schemas/ExperimentStatusType'
   schemas:
     EndpointID:
       type: string
@@ -1572,11 +1620,7 @@ components:
           x-oapi-codegen-extra-tags:
             binding: required
         lastHeartbeat:
-          type: string
-          format: date-time
-          description: Time of the last received heartbeat.
-          x-oapi-codegen-extra-tags:
-            binding: required
+          $ref: '#/components/schemas/EndpointHeartbeat'
       required:
         - id
         - name
@@ -2075,7 +2119,10 @@ components:
             binding: required
     NewHoneypot:
       type: object
-      description: The object to use when creating a new honeypot.
+      description: |
+        The object to use when creating a new honeypot.
+        Setting experimentID indicates that this honeypot was created as part of an experiment (and thus is likely dynamic).
+        When the experiment ends, the honeypot will be terminated.
       allOf:
         - $ref: '#/components/schemas/EditHoneypot'
         - type: object
@@ -2089,11 +2136,13 @@ components:
               description: Specifies whether this honeypot was created dynamically (e.g. a container created by the router) or statically (e.g. a Smart TV via the frontend)
               x-oapi-codegen-extra-tags:
                 binding: required
+            experimentID:
+              $ref: '#/components/schemas/ExperimentID'
     Honeypot:
       type: object
       description: |
         A honeypot (e.g. a single running Docker container).
-        When `endpointForwardingRule` is set, the honeypot is assigned to the corresponding endpoint.
+        `endpointForwardingRules` contains the endpoints the honeypot is assigned to.
       allOf:
         - type: object
           required:
@@ -2103,13 +2152,16 @@ components:
             - type
             - dynamic
             - router
+            - endpointForwardingRules
           properties:
             id:
               $ref: '#/components/schemas/HoneypotID'
             router:
               $ref: '#/components/schemas/Router'
-            endpointForwardingRule:
-              $ref: '#/components/schemas/EndpointForwardingRule'
+            endpointForwardingRules:
+              type: array
+              items:
+                $ref: '#/components/schemas/EndpointForwardingRule'
         - $ref: '#/components/schemas/NewHoneypot'
     UserID:
       type: string
@@ -2306,14 +2358,22 @@ components:
       type: string
       format: uuid
       description: The unique identifier of an endpoint
-    ExperimentStatus:
+    ExperimentStatusType:
       type: string
-      description: indicates whether an experiment has been planned, started, ended or failed
+      description: Indicates whether an experiment has been registered, scheduled, started, ended or failed
       enum:
-        - planned
-        - started
-        - ended
-        - failed
+        - Registered
+        - EndpointsAssigned
+        - ForcedStart
+        - ScheduledStart
+        - HoneypotsStarting
+        - Running
+        - EndpointsUnassigned
+        - ForcedStop
+        - ScheduledStop
+        - HoneypotsStopping
+        - Ended
+        - Failed
     ExperimentTimeframe:
       type: object
       description: Object to define the timeframe for an experiment
@@ -2366,6 +2426,15 @@ components:
       description: The object to use when creating a new Experiment
       allOf:
         - $ref: '#/components/schemas/SimpleExperiment'
+        - type: object
+          required:
+            - forwardings
+          properties:
+            forwardings:
+              type: array
+              description: Which ports on the endpoint to forward to which ports on the image
+              items:
+                $ref: '#/components/schemas/ExperimentForwardingRule'
     Experiment:
       type: object
       description: The object to return when creating or editing an experiment
@@ -2375,7 +2444,9 @@ components:
           required:
             - id
             - status
+            - failureReason
             - team
+            - forwardings
           properties:
             id:
               $ref: '#/components/schemas/ExperimentID'
@@ -2383,8 +2454,61 @@ components:
               $ref: '#/components/schemas/ExperimentStatus'
             team:
                $ref: '#/components/schemas/Team'
+            forwardings:
+              type: array
+              description: Which ports on the endpoint to forward to which ports on the image
+              items:
+                $ref: '#/components/schemas/ExperimentForwardingRule'
             permissions:
                 $ref: '#/components/schemas/UserObjectPermissions'
+    ExperimentForwardingRule:
+      type: object
+      required:
+        - protocol
+        - endpointPort
+        - honeypotPort
+      properties:
+        protocol:
+          description: The protocol
+          type: string
+          enum:
+            - tcp
+            - udp
+        endpointPort:
+          type: integer
+        honeypotPort:
+          type: integer
+    NewExperimentStatus:
+      type: object
+      required:
+        - status
+        - reason
+      properties:
+        status:
+          $ref: '#/components/schemas/ExperimentStatusType'
+        reason:
+          type: string
+          description: Reason for the status change
+    ExperimentStatus:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/NewExperimentStatus'
+        - type: object
+          required:
+            - createdAt
+          properties:
+            createdAt:
+              type: string
+              format: date-time
+    ExperimentStatusLog:
+      type: object
+      required:
+        - statuses
+      properties:
+        statuses:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentStatus'
     AllExperimentsResponse:
       type: object
       properties:

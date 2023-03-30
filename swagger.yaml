@@ -2460,6 +2460,8 @@ components:
         - researcher
         - maintainer
         - owner
+      x-oapi-codegen-extra-tags:
+        binding: required
     UserTeamAssignment:
       type: object
       description: Assigning a user to a team
@@ -2468,8 +2470,6 @@ components:
       properties:
         role:
           $ref: '#/components/schemas/UserTeamRole'
-          x-oapi-codegen-extra-tags:
-            binding: required
     UserObjectPermission:
       type: string
       description: Permission what a user can do on an object.

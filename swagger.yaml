@@ -2440,16 +2440,16 @@ components:
     TeamUser:
       type: object
       description: A user that is part of a team.
-      required:
-        - id
-        - name
-        - role
       allOf:
         - $ref: '#/components/schemas/User'
         - type: object
           properties:
             role:
               $ref: '#/components/schemas/UserTeamRole'
+          required:
+            - id
+            - name
+            - role
     GlobalUser:
       type: object
       description: A user that is returned as part of a global query.

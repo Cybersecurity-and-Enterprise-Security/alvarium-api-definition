@@ -246,13 +246,13 @@ paths:
           description: Endpoint log entry added successfully
         '404':
           $ref: '#/components/responses/NotFoundError'
-  /endpoints/{endpointId}/stats:
+  /endpoints/{endpointId}/statistics:
     post:
       tags:
         - endpoint
       summary: Add Statistics Of Endpoint
       description: Used by the endpoint to regularly contact the beekeeper to inform it about liveliness status and other stats.
-      operationId: AddEndpointStats
+      operationId: AddEndpointStatistics
       security:
         - EndpointAuthentication: []
       parameters:
@@ -261,7 +261,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EndpointStats'
+              $ref: '#/components/schemas/EndpointStatistics'
       responses:
         '204':
           description: Stats added successfully
@@ -428,6 +428,79 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+  '/endpoints/count':
+    get:
+      tags:
+      - endpoint
+      summary: Filter endpoints according to the specified tags
+      description: TBD
+      operationId: FilterEndpointsByTag
+      parameters:
+        - name: tag
+          in: query
+          description: tag to get the values to
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointCountResponse'
+  '/endpoints/tags':
+    get:
+      tags:
+      - endpoint
+      summary: Filter endpoints according to the specified tags
+      description: This returns all available endpoint tags from the database
+      operationId: GetAvailableEndpointTags
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/AvailableTagsResponse'
+  '/endpoints/tags/{tagId}':
+    get:
+      tags:
+      - endpoint
+      summary: Filter endpoints according to the specified tags
+      description: TBD
+      operationId: GetEndpointsByTags
+      parameters:
+        - name: tagId
+          in: path
+          description: tag to get the values to
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointTagsResponse'
+  '/endpoints/countries':
+    get:
+      tags:
+      - endpoint
+      summary: Get endpoint amounts per country
+      description: TBD
+      operationId: GetEndpointsCountByCountry
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EndpointCountryResponse'
   /endpointForwardingRules/{forwardingRuleId}:
     get:
       tags:
@@ -1695,7 +1768,7 @@ components:
     ExperimentIDParam:
       name: experimentId
       in: path
-      description: ID of the endpoint to operate on
+      description: ID of the experiment to operate on
       required: true
       schema:
         $ref: '#/components/schemas/ExperimentID'
@@ -1718,6 +1791,17 @@ components:
       type: string
       format: uuid
       description: The unique identifier of an endpoint
+    TagID:
+      type: integer
+      description: The unique identifier of an endpoint tag
+    EndpointTagID:
+      type: string
+      format: uuid
+      description: The unique identifier of an endpoint tag 
+    ExperimentTagID:
+      type: string
+      format: uuid
+      description: The unique identifier of an endpoint tag 
     EndpointConfigurationID:
       type: string
       format: uuid
@@ -1798,12 +1882,13 @@ components:
           x-oapi-codegen-extra-tags:
             binding: required
         lastHeartbeat:
-          $ref: '#/components/schemas/EndpointHeartbeat'
+          type: string
+          format: date-time
+          description: Time of the last received heartbeat
       required:
         - id
         - name
         - isRegistered
-        - publicIP
         - alive
         - lastHeartbeat
     Endpoint:
@@ -1812,12 +1897,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/SimpleEndpoint'
         - type: object
-          required:
-            - id
-            - name
-            - isRegistered
-            - publicIP
-            - configuration
           properties:
             configuration:
               $ref: '#/components/schemas/EndpointConfiguration'
@@ -2257,18 +2336,16 @@ components:
           type: string
           description: The log entry
           example: Received new connection from 1.1.1.1
-    EndpointHeartbeat:
-        type: string
-        description: ISO8601 date and time
-        example: '1970-01-20T:14:30:02.150Z'
-    EndpointStats:
+    EndpointStatistics:
       type: object
       description: Heartbeat information from an endpoint
       properties:
-        timestamp:
+        ip:
           type: string
-          description: ISO8601 date and time
-          example: '1970-01-20T:14:30:02.150Z'
+          description: the private IP of an Endpoint
+          example: "192.168.178.2"
+      required:
+        - ip
     EditRouter:
       type: object
       description: Object to use when editing a router.
@@ -2709,6 +2786,12 @@ components:
           description: End time of the experiment.
           x-oapi-codegen-extra-tags:
             binding: required
+    FilteredEndpointsCount:
+      type: object
+      description: returns the amount of endpoints which match the filter criteria
+      properties:
+        count:
+          type: integer
     SimpleExperiment:
       type: object
       description: Object that contains properties which are used by any other experiment object
@@ -2751,6 +2834,10 @@ components:
               description: Which ports on the endpoint to forward to which ports on the image
               items:
                 $ref: '#/components/schemas/ExperimentForwardingRule'
+            tags:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExperimentTag'
     Experiment:
       type: object
       description: The object to return when creating or editing an experiment
@@ -2764,6 +2851,10 @@ components:
             - team
             - forwardings
           properties:
+            tags:
+              type: array
+              items:
+                $ref: '#/components/schemas/SimpleExperimentTag'
             id:
               $ref: '#/components/schemas/ExperimentID'
             status:
@@ -2856,6 +2947,23 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ExperimentStatus'
+    EndpointCountryResponse:
+      type: object
+      properties:
+        country:
+          type: string
+        count:
+          type: integer
+      required:
+        - country
+        - count
+    EndpointCountResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+      required:
+        - count
     AllExperimentsResponse:
       type: object
       properties:
@@ -2916,6 +3024,70 @@ components:
           type: string
           format: timestamp
           description: Start time of the capture file.
+    Tag:
+      type: object
+      properties:
+        id:
+         $ref: '#/components/schemas/TagID'
+        key:
+          type: string
+      required:
+        - id
+        - key
+    TagValues:
+      type: array
+      items:
+        type: string
+    AvailableTagsResponse:
+      type: object
+      required:
+        - tags
+        - count
+      properties:
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        count:
+          type: integer
+    EndpointTagsResponse:
+      type: object
+      required:
+        - tags
+        - count
+      properties:
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimpleEndpointTag'
+        count:
+          type: integer
+    SimpleEndpointTag:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+      required:
+        - key
+        - value
+    SimpleExperimentTag:
+      allOf:
+       - $ref: '#/components/schemas/SimpleEndpointTag'
+    EndpointTag:
+      type: object
+      properties:
+        tagId:
+          $ref: '#/components/schemas/TagID'
+        value:
+          type: string
+      required:
+      - tagId
+      - value
+    ExperimentTag:
+      allOf:
+       - $ref: '#/components/schemas/EndpointTag'
   responses:
     BadRequestError:
       description: The supplied input is invalid

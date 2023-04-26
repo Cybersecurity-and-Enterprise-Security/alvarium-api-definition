@@ -2800,6 +2800,7 @@ components:
         - image
         - amount
         - timeframe
+        - useOnlyTeamEndpoints
       properties:
         name:
           type: string
@@ -2815,6 +2816,10 @@ components:
             binding: required
         timeframe:
           $ref: '#/components/schemas/ExperimentTimeframe'
+        useOnlyTeamEndpoints:
+          type: boolean
+          x-oapi-codegen-extra-tags:
+            binding: required
     EditExperiment:
       type: object
       description: Object to use when editing an existing Experiment

@@ -92,6 +92,22 @@ paths:
                 $ref: '#/components/schemas/RegisterEndpointResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+  /endpoints/statistics:
+    get:
+      tags:
+        - endpoint
+      summary: Get General Endpoints Statistics
+      description: |
+        This route provides endpoint information to the frontend, e.g. how many endpoints are globally registered, how many are alive, etc
+      responses:
+        '200':
+          description: Service healthy.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalEndpointStatistics'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
   '/endpoints/{endpointId}':
     get:
       tags:
@@ -2346,6 +2362,31 @@ components:
           example: "192.168.178.2"
       required:
         - ip
+    GlobalEndpointStatistics:
+      type: object
+      description: Object which is returned to get the platform information endpoints
+      properties:
+        total:
+          type: number
+          description: total amount of endpoints on the platform
+        registered:
+          type: number
+          description: amount of registered endpoints
+        uregistered:
+          type: number
+          description: amount of uregistered endpoints
+        alive:
+          type: number
+          description: amount of endpoints which are alive
+        dead:
+          type: number
+          description: amount of endpoints which are not alive
+      required:
+        - total
+        - registered
+        - unregistered
+        - alive
+        - dead
     EditRouter:
       type: object
       description: Object to use when editing a router.

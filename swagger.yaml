@@ -1227,6 +1227,23 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+  '/teams/{teamId}/endpoints/statistics':
+    get:
+      tags:
+        - endpoint
+      summary: Get Team Endpoints Statistics
+      description: |
+        This route provides endpoint information to the frontend, e.g. how many endpoints are globally registered, how many are alive, etc
+      operationId: GetTeamEndpointStatistics
+      responses:
+        '200':
+          description: Service healthy.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalEndpointStatistics'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
   '/teams/{teamId}/routers':
     get:
       tags:

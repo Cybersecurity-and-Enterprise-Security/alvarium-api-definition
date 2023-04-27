@@ -99,6 +99,7 @@ paths:
       summary: Get General Endpoints Statistics
       description: |
         This route provides endpoint information to the frontend, e.g. how many endpoints are globally registered, how many are alive, etc
+      operationId: GetGlobalEndpointStatistics
       responses:
         '200':
           description: Service healthy.

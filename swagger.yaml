@@ -2367,19 +2367,19 @@ components:
       description: Object which is returned to get the platform information endpoints
       properties:
         total:
-          type: number
+          type: integer
           description: total amount of endpoints on the platform
         registered:
-          type: number
+          type: integer
           description: amount of registered endpoints
         uregistered:
-          type: number
+          type: integer
           description: amount of uregistered endpoints
         alive:
-          type: number
+          type: integer
           description: amount of endpoints which are alive
         dead:
-          type: number
+          type: integer
           description: amount of endpoints which are not alive
       required:
         - total

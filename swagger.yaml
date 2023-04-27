@@ -1235,6 +1235,8 @@ paths:
       description: |
         This route provides endpoint information to the frontend, e.g. how many endpoints are globally registered, how many are alive, etc
       operationId: GetTeamEndpointStatistics
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
       responses:
         '200':
           description: Service healthy.

@@ -160,6 +160,31 @@ paths:
           description: Endpoint deleted successfully
         '404':
           $ref: '#/components/responses/NotFoundError'
+  '/endpoints/{endpointId}/reregister':
+    post:
+      tags:
+        - endpoint
+      summary: Reregister an Endpoint
+      description: |
+        Reregisters an endpoint.
+        This may be useful is the registration token got lost before the endpoint could be registered, or when somehow the authentication token got lost, leaked etc.
+        Note, that this will reset the authentication token of the endpoint. Hence, any endpoint running with the current authentication token must be reregistered.
+      operationId: ReregisterEndpoint
+      parameters:
+        - $ref: '#/components/parameters/EndpointIDParam'
+      responses:
+        '201':
+          description: New registration created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReregisterEndpointResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
   '/endpoints/{endpointId}/transfer':
     post:
       tags:
@@ -2026,6 +2051,13 @@ components:
     EditEndpointRequest:
       allOf:
         - $ref: '#/components/schemas/EditEndpoint'
+    ReregisterEndpointResponse:
+      type: object
+      required:
+        - registrationToken
+      properties:
+        registrationToken:
+          $ref: '#/components/schemas/EndpointRegistrationToken'
     RegisterEndpointRequest:
       type: object
       required:

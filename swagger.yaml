@@ -993,6 +993,133 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '405':
           $ref: '#/components/responses/InvalidInputError'
+  /honeypots/presets:
+    get:
+      tags:
+        - honeypot
+      summary: Get All Available Honeypot Presets
+      description: Returns all available honeypot presets which can be used for new experiments.
+      operationId: GetHoneypotPresets
+      responses:
+        '200':
+          description: Honeypot Presets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllDockerHoneypotPresets'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /honeypots/presets/{honeypotPresetId}:
+    get:
+      tags:
+        - honeypot
+      summary: Get Honeypot Preset By ID
+      description: Get a specific honeypot preset.
+      operationId: FindHoneypotPresetByID
+      parameters:
+        - $ref: '#/components/parameters/HoneypotPresetIDParam'
+      responses:
+        '200':
+          description: Honeypot Preset found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DockerHoneypotPreset'
+        '400':
+          description: Invalid ID supplied
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    patch:
+      tags:
+        - honeypot
+      summary: Edit Honeypot Preset By ID
+      description: Edits the honeypot preset with the given ID and the provided information.
+      operationId: EditHoneypotPreset
+      parameters:
+        - $ref: '#/components/parameters/HoneypotPresetIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditDockerHoneypotPreset'
+      responses:
+        '200':
+          description: Update successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DockerHoneypotPreset'
+        '400':
+          description: Invalid ID supplied
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      tags:
+        - honeypot
+      summary: Delete Honeypot Preset By ID
+      description: Deletes the honeypot preset with the specified ID. This should not influence running experiments at all.
+      operationId: DeleteHoneypotPreset
+      parameters:
+        - $ref: '#/components/parameters/HoneypotPresetIDParam'
+      responses:
+        '204':
+          description: Honeypot deleted successfully
+        '400':
+          description: Invalid ID supplied
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /honeypots/presets/{honeypotPresetId}/pullSecret:
+    get:
+      tags:
+        - honeypot
+      summary: Get Pull Secret of a Honeypot Preset
+      description: Get the pull secret of a specific honeypot preset.
+      operationId: GetHoneypotPresetPullSecret
+      parameters:
+        - $ref: '#/components/parameters/HoneypotPresetIDParam'
+      responses:
+        '200':
+          description: Honeypot Preset Pull Secret
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DockerPullSecret'
+        '204':
+          description: No pull secret configured
+        '400':
+          description: Invalid ID supplied
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      tags:
+        - honeypot
+      summary: Set Pull Secret of a Honeypot Preset
+      description: Set the pull secret of a specific honeypot preset.
+      operationId: SetHoneypotPresetPullSecret
+      parameters:
+        - $ref: '#/components/parameters/HoneypotPresetIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DockerPullSecret'
+      responses:
+        '204':
+          description: Pull Secret configured
+        '400':
+          description: Invalid ID supplied
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
   /teams:
     get:
       tags:
@@ -1364,6 +1491,51 @@ paths:
                 $ref: '#/components/schemas/Experiment'
         '400':
           $ref: '#/components/responses/BadRequestError'  
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /teams/{teamId}/honeypots/presets:
+    get:
+      tags:
+        - honeypot
+      summary: Get Honeypot Presets By Team
+      operationId: GetHoneypotPresetsByTeamId
+      parameters:
+      - $ref: '#/components/parameters/TeamIDParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/AllTeamDockerHoneypotPresets'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      tags:
+        - honeypot
+      summary: Create a new Honeypot Preset
+      description: Creates a new honeypot preset which can be used in experiments.
+      operationId: CreateHoneypotPreset
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewDockerHoneypotPreset'
+      responses:
+        '201':
+          description: Honeypot Preset created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DockerHoneypotPreset'
+        '400':
+          description: Invalid ID supplied
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -1819,6 +1991,13 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/HoneypotID'
+    HoneypotPresetIDParam:
+      name: honeypotPresetId
+      in: path
+      description: ID of the honeypot preset to operate on
+      required: true
+      schema:
+        $ref: '#/components/schemas/HoneypotID'
     EndpointForwardingRuleIDParam:
       name: forwardingRuleId
       in: path
@@ -1888,6 +2067,12 @@ components:
       type: string
       format: uuid
       description: The unique identifier of a traffic dump
+    DockerHoneypotPresetID:
+      type: string
+      format: uuid
+      description: The unique identifier of a docker honeypot preset
+      x-oapi-codegen-extra-tags:
+        binding: required
     BasicEndpoint:
       type: object
       description: An object describing the basic properties of an endpoint
@@ -2911,16 +3096,11 @@ components:
       description: Object that contains properties which are used by any other experiment object
       required:
         - name
-        - image
         - amount
         - timeframe
         - useOnlyTeamEndpoints
       properties:
         name:
-          type: string
-          x-oapi-codegen-extra-tags:
-            binding: required
-        image:
           type: string
           x-oapi-codegen-extra-tags:
             binding: required
@@ -2945,6 +3125,7 @@ components:
         - type: object
           required:
             - forwardings
+            - honeypotPresetId
           properties:
             forwardings:
               type: array
@@ -2955,6 +3136,8 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/ExperimentTag'
+            honeypotPresetId:
+              $ref: '#/components/schemas/DockerHoneypotPresetID'
     Experiment:
       type: object
       description: The object to return when creating or editing an experiment
@@ -2964,9 +3147,9 @@ components:
           required:
             - id
             - status
-            - failureReason
             - team
             - forwardings
+            - honeypotPreset
           properties:
             tags:
               type: array
@@ -2983,6 +3166,8 @@ components:
               description: Which ports on the endpoint to forward to which ports on the image
               items:
                 $ref: '#/components/schemas/ExperimentForwardingRule'
+            honeypotPreset:
+              $ref: '#/components/schemas/DockerHoneypotPreset'
             permissions:
                 $ref: '#/components/schemas/UserObjectPermissions'
     AllRouterExperiments:
@@ -3004,6 +3189,7 @@ components:
             - id
             - honeypots
             - forwardings
+            - image
           properties:
             id:
               $ref: '#/components/schemas/ExperimentID'
@@ -3016,6 +3202,11 @@ components:
               description: Which ports on the endpoint to forward to which ports on the image
               items:
                 $ref: '#/components/schemas/ExperimentForwardingRule'
+            image:
+              type: string
+              description: Docker image to run
+            pullSecret:
+              $ref: '#/components/schemas/DockerPullSecret'
     ExperimentForwardingRule:
       type: object
       required:
@@ -3205,6 +3396,144 @@ components:
     ExperimentTag:
       allOf:
        - $ref: '#/components/schemas/EndpointTag'
+    DockerPullSecret:
+      type: object
+      description: Credentials to use when pulling the image.
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          x-oapi-codegen-extra-tags:
+            binding: required
+        password:
+          type: string
+          x-oapi-codegen-extra-tags:
+            binding: required
+    DockerHoneypotPort:
+      type: object
+      required:
+        - port
+        - protocol
+        - description
+      properties:
+        port:
+          type: integer
+          description: The actual port number.
+          example: 80
+          x-oapi-codegen-extra-tags:
+            binding: required
+        protocol:
+          type: string
+          enum:
+            - tcp
+            - udp
+          description: The protocol (TCP/UDP) the port listens on.
+          example: tcp
+          x-oapi-codegen-extra-tags:
+            binding: required
+        description:
+          type: string
+          description: Description of what is running on the port.
+          x-oapi-codegen-extra-tags:
+            binding: required
+    NewDockerHoneypotPreset:
+      type: object
+      required:
+        - name
+        - description
+        - image
+        - ports
+        - public
+      properties:
+        name:
+          type: string
+          description: A short name of the preset.
+          x-oapi-codegen-extra-tags:
+            binding: required
+        description:
+          type: string
+          description: A description of what the honeypot is doing. This is shown to other users so that they can determine if the honeypot does what they want.
+          x-oapi-codegen-extra-tags:
+            binding: required
+        image:
+          type: string
+          description: |
+            Name of the Docker image to run.
+            This is similar to the `IMAGE` argument to the `docker run` command.
+            Therefore, it can include the registry and tag of the image.
+          example: quay.io/keycloak/keycloak:21.1.1
+          x-oapi-codegen-extra-tags:
+            binding: required
+        ports:
+          type: array
+          description: Ports which are exposed by the honeypot.
+          items:
+            $ref: '#/components/schemas/DockerHoneypotPort'
+        public:
+          type: boolean
+          description: Whether this preset should be available to use by all users.
+    EditDockerHoneypotPreset:
+      type: object
+      description: Object to use when editing a honeypot preset. Changing the properties will have an effect only on new experiments.
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        image:
+          type: string
+        ports:
+          type: array
+          items:
+            $ref: '#/components/schemas/DockerHoneypotPort'
+        public:
+          type: boolean
+    DockerHoneypotPreset:
+      type: object
+      description: Honeypot preset that is presented to other users on the platform.
+      required:
+        - id
+        - name
+        - description
+        - image
+        - ports
+        - public
+      allOf:
+        - $ref: '#/components/schemas/NewDockerHoneypotPreset'
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              $ref: '#/components/schemas/DockerHoneypotPresetID'
+            permissions:
+              $ref: '#/components/schemas/UserObjectPermissions'
+    AllDockerHoneypotPresets:
+      type: object
+      description: All available Docker honeypot presets.
+      required:
+        - count
+        - presets
+      properties:
+        count:
+          type: integer
+        presets:
+          type: array
+          items:
+            $ref: '#/components/schemas/DockerHoneypotPreset'
+    AllTeamDockerHoneypotPresets:
+      type: object
+      description: All honeypot presets of a team.
+      allOf:
+        - $ref: '#/components/schemas/AllDockerHoneypotPresets'
+        - type: object
+          required:
+            - permissions
+          properties:
+            permissions:
+              $ref: '#/components/schemas/UserObjectPermissions'
   responses:
     BadRequestError:
       description: The supplied input is invalid

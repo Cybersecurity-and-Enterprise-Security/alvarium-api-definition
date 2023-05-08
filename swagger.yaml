@@ -178,7 +178,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReregisterEndpointResponse'
+                $ref: '#/components/schemas/EndpointReregistration'
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -245,9 +245,16 @@ paths:
         - EndpointAuthentication: []
       parameters:
         - $ref: '#/components/parameters/EndpointIDParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndpointStartup'
       responses:
         '204':
           description: Endpoint startup successful
+        '400':
+          $ref: '#/components/responses/BadRequestError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -1946,12 +1953,16 @@ components:
           type: string
           format: date-time
           description: Time of the last received heartbeat
+        version:
+          type: string
+          description: Version of the endpoint.
       required:
         - id
         - name
         - isRegistered
         - alive
         - lastHeartbeat
+        - version
     Endpoint:
       type: object
       description: A complete endpoint. Team is only unset, if it can be inferred otherwise, e.g. because /teams/id/endpoints was requested.
@@ -2051,7 +2062,7 @@ components:
     EditEndpointRequest:
       allOf:
         - $ref: '#/components/schemas/EditEndpoint'
-    ReregisterEndpointResponse:
+    EndpointReregistration:
       type: object
       required:
         - registrationToken
@@ -2404,6 +2415,16 @@ components:
           type: string
           description: The log entry
           example: Received new connection from 1.1.1.1
+    EndpointStartup:
+      type: object
+      description: Startup information of an endpoint.
+      properties:
+        version:
+          type: string
+          description: Current version of the Bee
+          example: "v1.0.0"
+      required:
+        - version
     EndpointStatistics:
       type: object
       description: Heartbeat information from an endpoint

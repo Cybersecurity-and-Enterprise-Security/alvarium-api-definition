@@ -178,7 +178,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReregisterEndpointResponse'
+                $ref: '#/components/schemas/EndpointReregistration'
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -2062,7 +2062,7 @@ components:
     EditEndpointRequest:
       allOf:
         - $ref: '#/components/schemas/EditEndpoint'
-    ReregisterEndpointResponse:
+    EndpointReregistration:
       type: object
       required:
         - registrationToken

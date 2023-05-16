@@ -2590,7 +2590,7 @@ components:
             endpoint:
               $ref: '#/components/schemas/SimpleEndpoint'
             honeypot:
-              $ref: '#/components/schemas/Honeypot'
+              $ref: '#/components/schemas/SimpleHoneypot'
         - $ref: '#/components/schemas/NewEndpointForwardingRule'
     EndpointLog:
       type: object
@@ -2806,10 +2806,23 @@ components:
             dynamic:
               type: boolean
               description: Specifies whether this honeypot was created dynamically (e.g. a container created by the router) or statically (e.g. a Smart TV via the frontend)
-              x-oapi-codegen-extra-tags:
-                binding: required
             experimentID:
               $ref: '#/components/schemas/ExperimentID'
+    SimpleHoneypot:
+      type: object
+      description: Basic information about a honeypot without relations to other objects like routers.
+      allOf:
+        - $ref: '#/components/schemas/NewHoneypot'
+        - type: object
+          required:
+            - id
+            - name
+            - ip
+            - type
+            - dynamic
+          properties:
+            id:
+              $ref: '#/components/schemas/HoneypotID'
     Honeypot:
       type: object
       description: |
@@ -2818,23 +2831,16 @@ components:
       allOf:
         - type: object
           required:
-            - id
-            - name
-            - ip
-            - type
-            - dynamic
             - router
             - endpointForwardingRules
           properties:
-            id:
-              $ref: '#/components/schemas/HoneypotID'
             router:
               $ref: '#/components/schemas/Router'
             endpointForwardingRules:
               type: array
               items:
                 $ref: '#/components/schemas/EndpointForwardingRule'
-        - $ref: '#/components/schemas/NewHoneypot'
+        - $ref: '#/components/schemas/SimpleHoneypot'
     RouterHoneypot:
       type: object
       description: Honeypot information for a Router.

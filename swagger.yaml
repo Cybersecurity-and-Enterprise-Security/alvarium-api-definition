@@ -2806,8 +2806,6 @@ components:
             dynamic:
               type: boolean
               description: Specifies whether this honeypot was created dynamically (e.g. a container created by the router) or statically (e.g. a Smart TV via the frontend)
-              x-oapi-codegen-extra-tags:
-                binding: required
             experimentID:
               $ref: '#/components/schemas/ExperimentID'
     SimpleHoneypot:

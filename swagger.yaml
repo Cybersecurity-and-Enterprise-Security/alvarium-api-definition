@@ -3106,6 +3106,7 @@ components:
         - timeframe
         - useOnlyTeamEndpoints
         - singleHoneypot
+        - useAllEndpoints
       properties:
         name:
           type: string
@@ -3122,6 +3123,12 @@ components:
         singleHoneypot:
           type: boolean
           description: Defines whether there should be a single honeypot serving all bees, e.g. when using a static honeypot or when realizing a tarpit.
+        useAllEndpoints:
+          type: boolean
+          description: |
+            Defines whether all available endpoints should be allocated for this experiment.
+            This will assign all currently available and endpoints which are registered while the experiment runs to the experiment.
+            This toggle requires special privileges from the user who creates the experiment.
     EditExperiment:
       type: object
       description: Object to use when editing an existing Experiment

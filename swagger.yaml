@@ -1747,6 +1747,31 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+  '/experiments/{experimentId}/endpoints':
+    get:
+      tags:
+        - experiment
+      summary: Returns the endpoints which are associated to the experiment.
+      operationId: ListEndpointsForExperiment
+      description: |
+        Returns all the endpoints which are associated to the experiment.
+        This can be requested by the router or by users which have admin permissions on the router.
+      security:
+        - RouterAuthentication: []
+        - UserAuthentication: []
+      parameters:
+        - $ref: '#/components/parameters/ExperimentIDParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllExperimentEndpointsResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
   '/admin/endpoints':
     get:
       tags:
@@ -2103,6 +2128,27 @@ components:
           required:
           - name
           - configurationId
+    ExperimentEndpoint:
+      type: object
+      description: Endpoint that is returned when requesting the endpoints of an experiment.
+      required:
+        - id
+        - name
+        - publicIP
+        - wireguardIP
+      properties:
+        id:
+          $ref: '#/components/schemas/EndpointID'
+        name:
+          type: string
+          example: AWS Endpoint
+        publicIP:
+          description: The public IP of the endpoint, using which it receives traffic from attackers.
+          type: string
+          format: ip
+          example: 133.7.42.42
+        wireguardIP:
+          $ref: '#/components/schemas/WireGuardIP'
     SimpleEndpoint:
       type: object
       description: Endpoint that does not contain any relations.
@@ -2327,6 +2373,18 @@ components:
           type: integer
         permissions:
           $ref: '#/components/schemas/UserObjectPermissions'
+    AllExperimentEndpointsResponse:
+      type: object
+      required:
+        - endpoints
+        - count
+      properties:
+        endpoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentEndpoint'
+        count:
+          type: integer
     AllEndpointConfigurationsResponse:
       type: object
       required:

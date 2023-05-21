@@ -1796,6 +1796,28 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         "404":
           $ref: "#/components/responses/NotFoundError"
+  "/tarpit/statistics":
+    get:
+      tags:
+        - experiment
+      summary: Returns Tarpit Statistics
+      operationId: GetStatisticsForTarpitExperiment
+      description: |
+        Returns statistics associated with the tarpit experiment like the IPs which have sent packets to one of the endpoints associated with the experiment.
+      security:
+        - RouterAuthentication: []
+        - UserAuthentication: []
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExperimentStatisticsResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
   "/admin/endpoints":
     get:
       tags:

@@ -2611,26 +2611,26 @@ components:
     ExperimentStatisticsResponse:
       type: object
       required:
-        - endpoints
-        - count
+        - countries
       properties:
-        ips:
+        countries:
           type: array
           items:
-            $ref: "#/components/schemas/ExperimentStatisticIP"
-    ExperimentStatisticIP:
+            $ref: "#/components/schemas/ExperimentStatisticCountry"
+    ExperimentStatisticCountry:
       type: object
       properties:
-        ip:
-          type: string
         countryCode:
           type: string
-        count:
+        ips:
           type: integer
+        packets:
+          type: integer
+          format: int64
       required:
-        - ip
         - countryCode
-        - count
+        - ips
+        - packets
     UserTeamsResponse:
       type: object
       required:

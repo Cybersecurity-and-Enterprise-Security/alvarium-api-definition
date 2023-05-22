@@ -1262,8 +1262,8 @@ paths:
           $ref: "#/components/responses/NotFoundError"
   "/teams/{teamId}/users/{userId}":
     put:
-      summary: Add User To Team
-      operationId: AddUserToTeam
+      summary: Change User Role in Team
+      operationId: ChangeUserTeamRole
       tags:
         - team
       parameters:
@@ -1273,7 +1273,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserTeamAssignment"
+              $ref: '#/components/schemas/UserRoleAssignment'
       responses:
         "204":
           description: Ok
@@ -1292,11 +1292,80 @@ paths:
       responses:
         "204":
           description: Ok
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "404":
-          $ref: "#/components/responses/NotFoundError"
-  "/teams/{teamId}/endpoints":
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /teams/{teamId}/users/invite:
+    get:
+      summary: Get current Invite Code
+      operationId: GetInviteCode
+      tags:
+        - team
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamInviteCode'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      summary: Create Invite Code
+      operationId: CreateInviteCode
+      tags:
+        - team
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
+      responses:
+        '201':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamInviteCode'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      summary: Delete Invite Code
+      operationId: DeleteInviteCode
+      tags:
+        - team
+      parameters:
+        - $ref: '#/components/parameters/TeamIDParam'
+      responses:
+        '204':
+          description: Ok
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /invite/accept:
+    post:
+      summary: Accept an Invite
+      operationId: AcceptInvite
+      tags:
+        - team
+      requestBody:
+        content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamInviteCode'
+      responses:
+        '204':
+          description: Ok
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  '/teams/{teamId}/endpoints':
     get:
       tags:
         - endpoint
@@ -1989,27 +2058,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GlobalUser"
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "404":
-          $ref: "#/components/responses/NotFoundError"
-  "/users":
-    get:
-      tags:
-        - user
-      summary: Get All Users
-      description: This returns all users without the role to be able to invite them into a team
-      operationId: GetAllUsers
-      responses:
-        "200":
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AllUsersResponse"
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
+                $ref: '#/components/schemas/GlobalUser'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
 components:
   securitySchemes:
     EndpointAuthentication:
@@ -3158,14 +3211,22 @@ components:
         - owner
       x-oapi-codegen-extra-tags:
         binding: required
-    UserTeamAssignment:
+    UserRoleAssignment:
       type: object
       description: Assigning a user to a team
       required:
         - role
       properties:
         role:
-          $ref: "#/components/schemas/UserTeamRole"
+          $ref: '#/components/schemas/UserTeamRole'
+    TeamInviteCode:
+      type: object
+      description: Invite code for a team
+      required:
+        - code
+      properties:
+        code:
+          type: string
     UserObjectPermission:
       type: string
       description: Permission what a user can do on an object.

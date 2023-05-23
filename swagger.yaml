@@ -1,9 +1,9 @@
 openapi: 3.0.0
 info:
   contact:
-    name: Alvarium Master Project
+    name: Alvarium
     url: "https://cyber-threat-intelligence.com/"
-    email: MPWS2022CD1@hpi.de
+    email: development@malwaretarpit.com
   description: Beekeeper API
   version: 1.0.0
   title: Beekeeper API
@@ -11,7 +11,7 @@ info:
     name: TBD
     url: TBD
 servers:
-  - url: "{protocol}://{environment}.beekeeper.gitlab-k8s-1.thebeelab.net/v1"
+  - url: "{protocol}://{environment}.api.malwaretarpit.com/v1"
     variables:
       protocol:
         default: https
